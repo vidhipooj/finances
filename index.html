@@ -272,16 +272,17 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
     position:fixed;top:0;left:-280px;width:260px;
     height:100vh;height:100dvh;
     z-index:9998;
-    background:var(--bg2) !important;
+    background:#22221a !important;
     border-right:1px solid var(--border);
     display:flex;flex-direction:column;
     transition:left .25s ease;
     box-shadow:none;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
-    /* Ensure sidebar itself never swallows taps meant for its children */
     pointer-events:auto;
+    isolation:isolate;
   }
+  body.light-mode .sidebar{background:#eeeadf !important;}
   .sidebar.mob-open{
     left:0;
     box-shadow:8px 0 40px rgba(0,0,0,.8);
