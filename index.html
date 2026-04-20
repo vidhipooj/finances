@@ -139,7 +139,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;animation:fadeUp .5s ease .1s both;}
 .table-head{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1.2fr 0.9fr 1.2fr 60px;padding:10px 16px;border-bottom:1px solid var(--border);gap:7px;}
 .table-head span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
-.table-body{max-height:420px;overflow-y:auto;}
+.table-body{overflow-y:visible;}
 .table-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1.2fr 0.9fr 1.2fr 60px;padding:11px 16px;border-bottom:1px solid var(--border);gap:7px;align-items:center;transition:background .15s;animation:rowIn .3s ease both;}
 .table-row:last-child{border-bottom:none;}
 .table-row:hover{background:var(--card2);}
@@ -184,7 +184,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .quick-settle-btn{background:rgba(90,184,154,0.12);border:1px solid rgba(90,184,154,0.3);color:var(--teal);border-radius:9px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;}
 .quick-settle-btn:hover{background:rgba(90,184,154,0.22);}
 .settle-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;animation:fadeUp .4s ease both;}
-.settle-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 20px;margin-bottom:12px;animation:fadeUp .5s ease .1s both;}
+.settle-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 20px;margin-bottom:12px;animation:fadeUp .5s ease .1s both;overflow:visible;}
 .settle-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 .settle-section-title::before{content:'';width:3px;height:11px;border-radius:2px;background:var(--accent);display:inline-block;}
 .settle-input-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
@@ -311,7 +311,9 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
   .table-head{display:none;}
   .table-row{grid-template-columns:1fr auto;gap:6px;padding:10px 12px;}
   .row-cat,.row-date,.row-share{display:none;}
-  .settle-input-row{grid-template-columns:1fr 1fr;}
+  .settle-input-row{grid-template-columns:1fr;}
+  .settle-two-col{grid-template-columns:1fr !important;}
+  .settle-grid{grid-template-columns:1fr 1fr;}
   .annual-months-row{grid-template-columns:1fr 1fr;}
   .modal{width:95vw;padding:16px;}
   .sidebar-footer{padding:14px 12px;gap:8px;}
@@ -1440,7 +1442,7 @@ function buildMonthHTML(key) {
     + '<div class="settle-banner-right">'+bAmt+quickBtn+'</div></div>'
     + carryNote
 
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;">'
+    + '<div class="settle-two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;">'
 
     + '<div class="settle-section"><div class="settle-section-title">Settlement breakdown</div>'+breakdown+'</div>'
 
