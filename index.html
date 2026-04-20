@@ -387,6 +387,17 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const TABLE_NAME = 'shared_finances'
 const ROW_ID = 1
+const APP_PASSWORD = 'Vsshah@2405';
+(function checkAuth() {
+  var stored = localStorage.getItem('hh_auth');
+  if (stored === APP_PASSWORD) return;
+  var pwd = prompt('🔒 Enter password to access Our Finances:');
+  if (pwd !== APP_PASSWORD) {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#1a1a14;color:#c4706a;font-family:DM Sans,sans-serif;font-size:16px;">❌ Incorrect password. Please reload and try again.</div>';
+    throw new Error('Unauthorised');
+  }
+  localStorage.setItem('hh_auth', APP_PASSWORD);
+})();
 /* ════════════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════════════ */
