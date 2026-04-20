@@ -387,7 +387,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const TABLE_NAME = 'shared_finances'
 const ROW_ID = 1
-const APP_HASH = 'e9a6f9c9c1b9e2d3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7';
 async function hashPassword(pwd) {
   const msgBuffer = new TextEncoder().encode(pwd);
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -429,7 +428,16 @@ function showLoginScreen(correctHash) {
         localStorage.setItem('hh_auth_v2', correctHash);
         document.body.innerHTML = '';
         resolve();
-      } el
+      } else {
+        document.getElementById('login-error').textContent = '❌ Incorrect password. Please try again.';
+        document.getElementById('login-pwd').value = '';
+        document.getElementById('login-pwd').focus();
+      }
+    });
+    setTimeout(() => document.getElementById('login-pwd').focus(), 100);
+  });
+}
+await checkAuth();
 /* ════════════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════════════ */
