@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Finances — Household Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --bg:#1a1a14; --bg2:#22221a; --bg3:#2a2a20;
+  --card:#262620; --card2:#2e2e24;
+  --border:rgba(255,245,200,0.08); --border2:rgba(255,245,200,0.14);
+  --cream:#f5f0dc; --cream2:#e8e0c4; --cream3:#c8c0a4;
+  --muted:#888070;
+  --accent:#d4a853; --accent2:#e8c070;
+  --teal:#5ab89a; --rose:#c4706a; --blue:#6090c0;
+  --text:#f0e8d0; --r:12px; --r2:18px;
+  --num-font:'Playfair Display', serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(212,168,83,0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 90%,rgba(90,184,154,0.04) 0%,transparent 60%);pointer-events:none;z-index:0;}
+.geo-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0.4;}
+.geo-bg svg{width:100%;height:100%;}
+.shell{position:relative;z-index:1;display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:240px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden;}
+.logo-area{padding:22px 22px 14px;border-bottom:1px solid var(--border);}
+.logo-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--cream);line-height:1.2;}
+.logo-sub{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.05em;}
+.live-clock{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);margin-top:6px;letter-spacing:.06em;}
+.names-config{padding:12px 16px;border-bottom:1px solid var(--border);}
+.names-config>label{display:block;font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+.name-field{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.name-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0;}
+.av-me{background:rgba(96,144,192,0.2);color:var(--blue);}
+.av-partner{background:rgba(212,168,83,0.2);color:var(--accent);}
+.name-field input{flex:1;min-width:0;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:5px 9px;font-size:12px;color:var(--cream);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.name-field input:focus{border-color:var(--accent);}
+.nav{padding:8px 8px;flex:1;overflow-y:auto;}
+.nav-section-label{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:8px 12px 4px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:9px;font-size:13px;color:var(--muted);cursor:pointer;margin-bottom:1px;transition:all .18s;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:var(--border);color:var(--cream2);}
+.nav-item.active{background:rgba(212,168,83,0.12);color:var(--accent2);}
+.nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
+.nav-month-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nav-pill{font-size:9px;padding:2px 6px;border-radius:10px;font-family:'DM Mono',monospace;flex-shrink:0;}
+.nav-pill.pos{background:rgba(90,184,154,0.12);color:var(--teal);}
+.nav-pill.neg{background:rgba(196,112,106,0.12);color:var(--rose);}
+.nav-pill.zero{background:rgba(212,168,83,0.12);color:var(--accent);}
+.nav-del{opacity:0;font-size:11px;padding:1px 5px;border-radius:4px;background:none;border:none;color:var(--muted);cursor:pointer;transition:opacity .15s,color .15s;margin-left:4px;flex-shrink:0;}
+.nav-item:hover .nav-del{opacity:1;}
+.nav-del:hover{color:var(--rose);}
+.add-month-btn{display:flex;align-items:center;gap:7px;width:calc(100% - 16px);margin:4px 8px;padding:7px 12px;border-radius:9px;font-size:12px;color:var(--muted);border:1px dashed var(--border2);background:none;cursor:pointer;transition:all .2s;}
+.add-month-btn:hover{color:var(--accent);border-color:var(--accent);}
+
+/* SIDEBAR BOTTOM TOOLBAR */
+.sidebar-footer{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;}
+.icon-btn{background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);cursor:pointer;padding:6px 10px;font-size:11px;display:flex;align-items:center;gap:5px;transition:all .18s;white-space:nowrap;}
+.icon-btn:hover{color:var(--cream2);border-color:var(--border2);background:var(--card2);}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;}
+.page-header{padding:28px 32px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+.page-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--cream);line-height:1.1;}
+.page-title em{font-style:italic;color:var(--accent2);}
+.page-subtitle{font-size:13px;color:var(--muted);margin-top:5px;}
+.header-actions{display:flex;gap:10px;flex-shrink:0;flex-wrap:wrap;align-items:center;}
+.kbd-hint{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;}
+.add-btn-main{background:var(--accent);color:#1a1a14;border:none;border-radius:var(--r);padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap;}
+.add-btn-main:hover{background:var(--accent2);transform:translateY(-1px);}
+.add-btn-main.secondary{background:transparent;color:var(--cream2);border:1px solid var(--border2);}
+.add-btn-main.secondary:hover{background:var(--card2);transform:translateY(-1px);}
+.page-content{padding:20px 32px 48px;}
+
+/* METRICS */
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;animation:fadeUp .4s ease both;}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;}
+.metric-card:hover{transform:translateY(-2px);border-color:var(--border2);}
+.metric-card::before{content:'';position:absolute;top:0;right:0;width:55px;height:55px;border-radius:0 var(--r2) 0 55px;opacity:.06;}
+.metric-card.c-gold::before{background:var(--accent);}
+.metric-card.c-teal::before{background:var(--teal);}
+.metric-card.c-blue::before{background:var(--blue);}
+.metric-card.c-rose::before{background:var(--rose);}
+.metric-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.metric-value{font-family:var(--num-font);font-size:22px;font-weight:600;color:var(--cream);line-height:1;}
+.metric-value.pos{color:var(--teal);}
+.metric-value.neg{color:var(--rose);}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:5px;}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1.6fr;gap:12px;margin-bottom:18px;animation:fadeUp .5s ease .05s both;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;}
+.chart-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.chart-title::before{content:'';width:3px;height:11px;border-radius:2px;background:var(--accent);display:inline-block;}
+.legend{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+
+/* EXPENSE TABLE */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;animation:fadeUp .5s ease .1s both;}
+.table-head{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1.2fr 0.9fr 1.2fr 60px;padding:10px 16px;border-bottom:1px solid var(--border);gap:7px;}
+.table-head span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+.table-body{max-height:420px;overflow-y:auto;}
+.table-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1.2fr 0.9fr 1.2fr 60px;padding:11px 16px;border-bottom:1px solid var(--border);gap:7px;align-items:center;transition:background .15s;animation:rowIn .3s ease both;}
+.table-row:last-child{border-bottom:none;}
+.table-row:hover{background:var(--card2);}
+.row-desc{font-size:13px;font-weight:500;color:var(--cream2);}
+.row-amount{font-family:var(--num-font);font-size:14px;color:var(--cream);}
+.row-share{font-family:var(--num-font);font-size:14px;font-weight:600;color:var(--accent2);}
+.row-date{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.row-cat{font-size:11px;color:var(--muted);}
+.row-actions{display:flex;gap:3px;align-items:center;}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:500;letter-spacing:.04em;}
+.badge-me{background:rgba(96,144,192,0.15);color:#88b4e0;border:1px solid rgba(96,144,192,0.25);}
+.badge-partner{background:rgba(212,168,83,0.12);color:var(--accent2);border:1px solid rgba(212,168,83,0.2);}
+.badge-split{background:rgba(90,184,154,0.1);color:var(--teal);border:1px solid rgba(90,184,154,0.2);font-size:10px;}
+.del-btn{background:none;border:none;color:var(--muted);cursor:pointer;width:26px;height:26px;border-radius:7px;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.del-btn:hover{background:rgba(196,112,106,0.15);color:var(--rose);}
+.edit-btn{background:none;border:none;color:var(--muted);cursor:pointer;width:26px;height:26px;border-radius:7px;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.edit-btn:hover{background:rgba(212,168,83,0.12);color:var(--accent2);}
+
+/* CAT TABLE */
+.cat-table-wrap{overflow-x:auto;}
+.cat-table{width:100%;border-collapse:collapse;font-size:12px;}
+.cat-table th{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);}
+.cat-table th.num,.cat-table td.num{text-align:right;}
+.cat-table td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--cream2);}
+.cat-table td.num{font-family:var(--num-font);font-size:13px;color:var(--cream);}
+.cat-table tr:last-child td{border-bottom:none;}
+.cat-table tr:hover td{background:var(--card2);}
+.cat-bar-bg{height:4px;border-radius:2px;background:var(--bg3);min-width:60px;}
+.cat-bar-fill{height:4px;border-radius:2px;background:var(--teal);}
+
+/* SETTLE */
+.settle-banner{border-radius:var(--r2);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;animation:fadeUp .4s ease both;flex-wrap:wrap;gap:12px;}
+.settle-banner.owe-partner{background:linear-gradient(135deg,rgba(196,112,106,.15) 0%,rgba(196,112,106,.05) 100%);border:1px solid rgba(196,112,106,.25);}
+.settle-banner.owe-me{background:linear-gradient(135deg,rgba(90,184,154,.15) 0%,rgba(90,184,154,.05) 100%);border:1px solid rgba(90,184,154,.25);}
+.settle-banner.settled{background:linear-gradient(135deg,rgba(212,168,83,.1) 0%,transparent 100%);border:1px solid var(--border2);}
+.settle-left .settle-headline{font-family:'Playfair Display',serif;font-size:19px;color:var(--cream);}
+.settle-left .settle-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.settle-banner-right{display:flex;align-items:center;gap:14px;}
+.settle-amount{font-family:var(--num-font);font-size:36px;font-weight:600;}
+.settle-amount.pos{color:var(--teal);}
+.settle-amount.neg{color:var(--rose);}
+.quick-settle-btn{background:rgba(90,184,154,0.12);border:1px solid rgba(90,184,154,0.3);color:var(--teal);border-radius:9px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;}
+.quick-settle-btn:hover{background:rgba(90,184,154,0.22);}
+.settle-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;animation:fadeUp .4s ease both;}
+.settle-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 20px;margin-bottom:12px;animation:fadeUp .5s ease .1s both;}
+.settle-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.settle-section-title::before{content:'';width:3px;height:11px;border-radius:2px;background:var(--accent);display:inline-block;}
+.settle-input-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.s-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.s-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 11px;font-size:13px;color:var(--cream);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.s-input:focus{border-color:var(--accent);}
+.s-input.num-input{font-family:var(--num-font);font-size:14px;}
+.s-input.s-full{margin-bottom:10px;}
+.save-btn{padding:8px 18px;background:var(--accent);color:#1a1a14;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;transition:background .2s;}
+.save-btn:hover{background:var(--accent2);}
+.payment-list{margin-top:10px;}
+.payment-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px;}
+.payment-row:last-child{border-bottom:none;}
+.payment-desc{color:var(--cream2);flex:1;min-width:0;}
+.payment-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.payment-amt{font-family:var(--num-font);font-size:14px;color:var(--accent2);}
+.payment-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.carry-fwd-note{font-size:12px;color:var(--muted);background:rgba(212,168,83,.08);border:1px solid rgba(212,168,83,.18);border-radius:9px;padding:9px 13px;margin-bottom:12px;line-height:1.6;}
+.carry-fwd-note strong{color:var(--accent2);}
+.breakdown-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);}
+.breakdown-row:last-child{border-bottom:none;font-weight:600;padding-top:8px;}
+.breakdown-val{font-family:var(--num-font);font-size:13px;color:var(--cream);}
+
+/* ANNUAL MONTH CARDS */
+.annual-months-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:18px;animation:fadeUp .4s ease both;}
+.annual-month-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;cursor:pointer;transition:transform .2s,border-color .2s;}
+.annual-month-card:hover{transform:translateY(-2px);border-color:var(--border2);}
+.amc-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--cream2);margin-bottom:10px;}
+.amc-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:3px 0;}
+.amc-val{font-family:var(--num-font);font-size:13px;color:var(--cream);}
+.amc-val.pos{color:var(--teal);}
+.amc-val.neg{color:var(--rose);}
+.amc-divider{border-top:1px solid var(--border);margin:7px 0;}
+
+/* FULL CHART */
+.full-chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 20px;margin-bottom:14px;animation:fadeUp .5s ease .1s both;}
+
+/* SECTION HEADER */
+.section-hdr{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.section-hdr::before{content:'';width:3px;height:11px;border-radius:2px;background:var(--accent);display:inline-block;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-bg.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;animation:modalIn .25s cubic-bezier(.34,1.56,.64,1) both;}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--cream);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px;line-height:1;transition:color .15s;}
+.modal-close:hover{color:var(--rose);}
+.form-row{margin-bottom:12px;}
+.form-row label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+.form-row input,.form-row select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:9px 13px;font-size:13px;color:var(--cream);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.form-row input:focus,.form-row select:focus{border-color:var(--accent);}
+.form-row select option{background:var(--bg2);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+.btn-cancel{padding:8px 18px;font-size:13px;border-radius:9px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.btn-cancel:hover{color:var(--cream);}
+.btn-save{padding:8px 22px;font-size:13px;border-radius:9px;border:none;background:var(--accent);color:#1a1a14;cursor:pointer;font-weight:500;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-save:hover{background:var(--accent2);}
+
+/* TOAST */
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:10px 16px;font-size:13px;color:var(--cream2);display:flex;align-items:center;gap:8px;animation:toastIn .3s ease both;box-shadow:0 4px 20px rgba(0,0,0,.4);min-width:200px;}
+.toast.success{border-color:rgba(90,184,154,.35);}
+.toast.error{border-color:rgba(196,112,106,.35);}
+.toast.info{border-color:rgba(212,168,83,.25);}
+.toast-icon{font-size:14px;}
+.toast.fade-out{animation:toastOut .3s ease forwards;}
+
+/* SEARCH BAR */
+.search-bar-wrap{padding:0 32px;margin-top:14px;}
+.search-bar{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:13px;color:var(--cream);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.search-bar:focus{border-color:var(--accent);}
+.search-bar::placeholder{color:var(--muted);}
+
+/* MISC */
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;}
+.empty-state .big{font-size:34px;margin-bottom:10px;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(11px);}to{opacity:1;transform:translateY(0);}}
+@keyframes rowIn{from{opacity:0;transform:translateX(-5px);}to{opacity:1;transform:translateX(0);}}
+@keyframes modalIn{from{opacity:0;transform:scale(.93);}to{opacity:1;transform:scale(1);}}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px);}}
+</style>
+</head>
+<body>
+
+<div class="geo-bg">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <line x1="200" y1="0" x2="600" y2="900" stroke="rgba(212,168,83,0.04)" stroke-width="1"/>
+    <line x1="500" y1="0" x2="900" y2="900" stroke="rgba(212,168,83,0.03)" stroke-width="1"/>
+    <line x1="800" y1="0" x2="1200" y2="900" stroke="rgba(212,168,83,0.025)" stroke-width="1"/>
+    <circle cx="1200" cy="150" r="200" fill="none" stroke="rgba(90,184,154,0.03)" stroke-width="1"/>
+    <circle cx="1200" cy="150" r="320" fill="none" stroke="rgba(90,184,154,0.02)" stroke-width="1"/>
+    <circle cx="100" cy="800" r="160" fill="none" stroke="rgba(212,168,83,0.03)" stroke-width="1"/>
+  </svg>
+</div>
+
+<div id="toast-container"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-title">Our<br><em style="font-family:'Playfair Display',serif;font-style:italic;">Finances</em></div>
+      <div class="logo-sub">Household tracker</div>
+      <div class="live-clock" id="live-clock"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:7px;">
+        <span id="sync-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block;flex-shrink:0;transition:background .4s;box-shadow:0 0 0 2px rgba(255,255,255,0.05);"></span>
+        <span id="sync-label" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.05em;">Connecting…</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:auto;font-family:'DM Mono',monospace;opacity:0.5;">●  Real-time</span>
+      </div>
+    </div>
+    <div class="names-config">
+      <label>Members</label>
+      <div class="name-field">
+        <div class="name-avatar av-me" id="av-me">ME</div>
+        <input id="name-me" value="" oninput="onNameChange()" placeholder="Your name">
+      </div>
+      <div class="name-field">
+        <div class="name-avatar av-partner" id="av-partner">SP</div>
+        <input id="name-partner" value="" oninput="onNameChange()" placeholder="Partner's name">
+      </div>
+    </div>
+    <nav class="nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <button class="icon-btn" onclick="exportData()" title="Export PDF report">⬇ PDF</button>
+    </div>
+  </aside>
+  <main class="main" id="main-area"></main>
+</div>
+
+<!-- Modal: Add/Edit Expense -->
+<div class="modal-bg" id="modal-expense">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-expense-title">New expense</span>
+      <button class="modal-close" onclick="closeModal('modal-expense')">✕</button>
+    </div>
+    <div class="form-row"><label>Description</label><input id="f-desc" placeholder="e.g. Grocery run"></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Amount (₹)</label><input id="f-amount" type="number" min="0" placeholder="0" step="0.01"></div>
+      <div class="form-row"><label>Date</label><input id="f-date" type="date"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>Paid by</label>
+        <select id="f-paidby"><option value="me">Me</option><option value="partner">Spouse</option></select>
+      </div>
+      <div class="form-row"><label>Category</label>
+        <select id="f-cat">
+          <option>Groceries</option><option>Rent/EMI</option><option>Utilities</option>
+          <option>Dining</option><option>Transport</option><option>Fuel</option>
+          <option>Healthcare</option><option>Entertainment</option><option>Movies</option>
+          <option>Staycation</option><option>Travel</option><option>Shopping</option>
+          <option>Personal Care</option><option>Education</option><option>Subscriptions</option>
+          <option>Home &amp; Decor</option><option>Gifts</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row"><label>Split type</label>
+      <select id="f-split" onchange="toggleCustomSplit()">
+        <option value="equal">Equal (50/50)</option>
+        <option value="me">Fully mine</option>
+        <option value="partner">Fully partner's</option>
+        <option value="custom">Custom %</option>
+      </select>
+    </div>
+    <div class="form-row" id="custom-row" style="display:none;">
+      <label>Your share (%)</label>
+      <input id="f-myshare" type="number" min="0" max="100" value="50">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-expense')">Cancel</button>
+      <button class="btn-save" id="btn-expense-save" onclick="submitExpense()">Save expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Month -->
+<div class="modal-bg" id="modal-month">
+  <div class="modal">
+    <div class="modal-title">
+      <span>Add month</span>
+      <button class="modal-close" onclick="closeModal('modal-month')">✕</button>
+    </div>
+    <div class="form-row"><label>Year</label><input id="nm-year" type="number" placeholder="2026"></div>
+    <div class="form-row"><label>Month</label>
+      <select id="nm-month">
+        <option value="0">January</option><option value="1">February</option>
+        <option value="2">March</option><option value="3">April</option>
+        <option value="4">May</option><option value="5">June</option>
+        <option value="6">July</option><option value="7">August</option>
+        <option value="8">September</option><option value="9">October</option>
+        <option value="10">November</option><option value="11">December</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-month')">Cancel</button>
+      <button class="btn-save" onclick="submitAddMonth()">Add month</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const SUPABASE_URL = 'https://maozbgdrywxdwztvakff.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hb3piZ2RyeXd4ZHd6dHZha2ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NjIzNTUsImV4cCI6MjA5MjIzODM1NX0.yEJJEHl5U7tiSi2ZrPIV14WDAYdPbJjrtfTALnYQjNI'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const TABLE_NAME = 'shared_finances'
+const ROW_ID = 1
+/* ════════════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════════════ */
+var monthData = {};
+var monthOrder = [];
+var nameMe = '', namePartner = '';
+var activeView = 'annual';
+var _expModalKey = null;
+var _editExpId = null; // null = new, otherwise editing
+var _nextId = 1;
+var _charts = {};
+var _searchQuery = '';
+
+var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var SHORT_M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/* ════════════════════════════════════════════════════
+   REAL-TIME SHARED PERSISTENCE
+════════════════════════════════════════════════════ */
+var SHARED_KEY = 'hh_tracker_shared_v1';
+var _lastSyncHash = null;
+var _syncInterval = null;
+var _isSyncing = false;
+
+function stateHash(s) {
+  // Quick fingerprint to detect remote changes
+  return JSON.stringify({ mo: s.monthOrder, md: s.monthData, ni: s._nextId });
+}
+
+async function saveState() {
+  var payload = {
+    monthData: monthData, monthOrder: monthOrder, nameMe: nameMe,
+    namePartner: namePartner, _nextId: _nextId, _savedAt: Date.now()
+  };
+  var { error } = await supabase.from(TABLE_NAME).upsert({ id: ROW_ID, finance_data: payload });
+  if (!error) { setSyncStatus('saved'); _lastSyncHash = stateHash(payload); }
+  else { console.warn('Supabase save error', error); setSyncStatus('error'); }
+}
+
+async function loadState() {
+  var { data } = await supabase.from(TABLE_NAME).select('finance_data').eq('id', ROW_ID).single();
+  if (data && data.finance_data) {
+    applyState(data.finance_data);
+    _lastSyncHash = stateHash(data.finance_data);
+    toast('💾 Data restored', 'info');
+  }
+}
+
+function applyState(s, silent) {
+  monthData = s.monthData || {};
+  monthOrder = s.monthOrder || [];
+  nameMe = s.nameMe || '';
+  namePartner = s.namePartner || '';
+  _nextId = s._nextId || 1;
+  document.getElementById('name-me').value = nameMe;
+  document.getElementById('name-partner').value = namePartner;
+  document.getElementById('av-me').textContent = nameMe ? nameMe.substring(0,2).toUpperCase() : 'ME';
+  document.getElementById('av-partner').textContent = namePartner ? namePartner.substring(0,2).toUpperCase() : 'SP';
+  if(activeView !== 'annual' && monthOrder.indexOf(activeView) === -1) {
+    activeView = monthOrder.length ? monthOrder[monthOrder.length-1] : 'annual';
+  }
+}
+
+function setupRealtime() {
+  supabase.channel('db-changes').on('postgres_changes',
+    { event: 'UPDATE', schema: 'public', table: TABLE_NAME },
+    function(payload) {
+      var newState = payload.new.finance_data;
+      if (stateHash(newState) !== _lastSyncHash) {
+        var prevView = activeView;
+        applyState(newState);
+        activeView = prevView;
+        _lastSyncHash = stateHash(newState);
+        renderSidebar();
+        renderMain();
+        toast('🔄 Updated by ' + (namePartner || 'partner'), 'info');
+      }
+    }).subscribe();
+}
+
+function setSyncStatus(status) {
+  var dot = document.getElementById('sync-dot');
+  var lbl = document.getElementById('sync-label');
+  if (!dot || !lbl) return;
+  var map = {
+    online:  { color: 'var(--teal)',   text: 'Live' },
+    saved:   { color: 'var(--accent)', text: 'Saved' },
+    synced:  { color: 'var(--blue)',   text: 'Synced' },
+    error:   { color: 'var(--rose)',   text: 'Offline' },
+    loading: { color: 'var(--muted)',  text: 'Connecting…' }
+  };
+  var s = map[status] || map.online;
+  dot.style.background = s.color;
+  lbl.textContent = s.text;
+}
+
+/* ════════════════════════════════════════════════════
+   EXPORT / IMPORT
+════════════════════════════════════════════════════ */
+function exportData() {
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  var W = doc.internal.pageSize.getWidth();
+  var sorted = monthOrder.slice().sort();
+  var n1 = nm(), n2 = np();
+  var exportDate = new Date().toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'});
+
+  // ── Colour palette ──────────────────────────────────────
+  var GOLD   = [212, 168, 83];
+  var TEAL   = [90,  184, 154];
+  var ROSE   = [196, 112, 106];
+  var BLUE   = [96,  144, 192];
+  var BG     = [26,  26,  20];
+  var CARD   = [38,  38,  32];
+  var CREAM  = [245, 240, 220];
+  var MUTED  = [136, 128, 112];
+  var WHITE  = [255, 255, 255];
+
+  function setFill(rgb)   { doc.setFillColor(rgb[0], rgb[1], rgb[2]); }
+  function setDraw(rgb)   { doc.setDrawColor(rgb[0], rgb[1], rgb[2]); }
+  function setTxt(rgb)    { doc.setTextColor(rgb[0], rgb[1], rgb[2]); }
+  function fmtAmt(n)      { return 'Rs.' + Math.round(Math.abs(n)).toLocaleString('en-IN'); }
+
+  var y = 0; // current Y cursor
+
+  // ── Cover header ────────────────────────────────────────
+  setFill(BG);
+  doc.rect(0, 0, W, 48, 'F');
+
+  // Gold accent bar
+  setFill(GOLD);
+  doc.rect(0, 0, 4, 48, 'F');
+
+  // Title
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  setTxt(CREAM);
+  doc.text('Our Finances', 12, 18);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  setTxt(MUTED);
+  doc.text('Household Expense Report', 12, 26);
+  doc.text(n1 + '  ·  ' + n2, 12, 33);
+  doc.text('Exported: ' + exportDate, 12, 40);
+
+  // Month count badge
+  setFill(GOLD);
+  doc.roundedRect(W - 46, 14, 38, 10, 2, 2, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  setTxt(BG);
+  doc.text(sorted.length + ' month' + (sorted.length !== 1 ? 's' : ''), W - 27, 20.5, {align:'center'});
+
+  y = 56;
+
+  // ── Annual summary metrics ───────────────────────────────
+  var allExp = [];
+  sorted.forEach(function(k){ allExp = allExp.concat((monthData[k]||{expenses:[]}).expenses); });
+  var annTotal    = allExp.reduce(function(a,e){return a+e.amount;},0);
+  var annMePaid   = allExp.filter(function(e){return e.paidBy==='me';}).reduce(function(a,e){return a+e.amount;},0);
+  var annPrtPaid  = annTotal - annMePaid;
+  var annNetDue   = sorted.length ? computeFullMonth(sorted[sorted.length-1]).netDue : 0;
+
+  var metrics = [
+    { label:'Total Expenses',    value: fmtAmt(annTotal),           color: GOLD },
+    { label: n1 + ' Paid',       value: fmtAmt(annMePaid),          color: BLUE },
+    { label: n2 + ' Paid',       value: fmtAmt(annPrtPaid),         color: TEAL },
+    { label:'Net Balance',       value: fmtAmt(Math.abs(annNetDue)), color: annNetDue > 0.5 ? TEAL : annNetDue < -0.5 ? ROSE : GOLD }
+  ];
+
+  var boxW = (W - 20) / 4 - 3;
+  metrics.forEach(function(m, i) {
+    var x = 10 + i * (boxW + 4);
+    setFill(CARD);
+    doc.roundedRect(x, y, boxW, 22, 2, 2, 'F');
+    setFill(m.color);
+    doc.roundedRect(x, y, boxW, 3, 1, 1, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    setTxt(m.color);
+    doc.text(m.value, x + boxW / 2, y + 14, {align:'center'});
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    setTxt(MUTED);
+    doc.text(m.label, x + boxW / 2, y + 20, {align:'center'});
+  });
+
+  y += 30;
+
+  // ── Annual net balance note ──────────────────────────────
+  if(Math.abs(annNetDue) > 0.5) {
+    var noteColor = annNetDue > 0 ? TEAL : ROSE;
+    var noteText  = annNetDue > 0
+      ? n2 + ' owes ' + n1 + ': ' + fmtAmt(annNetDue)
+      : n1 + ' owes ' + n2 + ': ' + fmtAmt(-annNetDue);
+    setFill(noteColor);
+    doc.roundedRect(10, y, W - 20, 8, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    setTxt(BG);
+    doc.text(noteText, W / 2, y + 5.2, {align:'center'});
+    y += 14;
+  }
+
+  // ── Per-month sections ───────────────────────────────────
+  sorted.forEach(function(key) {
+    var m  = getMonth(key);
+    var fm = computeFullMonth(key);
+    var exps = m.expenses.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+
+    // Section heading
+    if(y > 240) { doc.addPage(); y = 14; }
+
+    setFill(BG);
+    doc.rect(0, y, W, 10, 'F');
+    setFill(GOLD);
+    doc.rect(10, y + 2, 3, 6, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    setTxt(CREAM);
+    doc.text(MONTH_NAMES[keyMonth(key)] + ' ' + keyYear(key), 17, y + 7.2);
+
+    // Month mini-metrics on the right
+    var mMets = [
+      { l:'Total', v:fmtAmt(fm.total) },
+      { l: n1 + ' paid', v:fmtAmt(fm.mePaid) },
+      { l: n2 + ' paid', v:fmtAmt(fm.partnerPaid) }
+    ];
+    var mx = W - 10;
+    mMets.reverse().forEach(function(mm) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      setTxt(GOLD);
+      doc.text(mm.v, mx, y + 5, {align:'right'});
+      mx -= doc.getTextWidth(mm.v) + 2;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      setTxt(MUTED);
+      doc.text(mm.l + ': ', mx, y + 5, {align:'right'});
+      mx -= doc.getTextWidth(mm.l + ': ') + 4;
+    });
+
+    y += 13;
+
+    // Expense table
+    if(exps.length) {
+      var splitLabel = function(e) {
+        if(e.split==='equal') return '50/50';
+        if(e.split==='me') return '100% ' + n1;
+        if(e.split==='partner') return '100% ' + n2;
+        return e.myShare + '% / ' + (100-e.myShare) + '%';
+      };
+      var tableRows = exps.map(function(e) {
+        return [
+          e.desc,
+          fmtAmt(e.amount),
+          e.paidBy === 'me' ? n1 : n2,
+          splitLabel(e),
+          e.cat,
+          fmtDate(e.date),
+          fmtAmt(calcShare(e))
+        ];
+      });
+
+      doc.autoTable({
+        startY: y,
+        head: [['Description','Amount','Paid by','Split','Category','Date','Your share']],
+        body: tableRows,
+        theme: 'plain',
+        styles: {
+          font: 'helvetica', fontSize: 7.5,
+          cellPadding: {top:2.5, bottom:2.5, left:3, right:3},
+          textColor: [220,210,195],
+          fillColor: CARD,
+          lineColor: [50,50,40],
+          lineWidth: 0.2
+        },
+        headStyles: {
+          fillColor: [30,30,22],
+          textColor: MUTED,
+          fontStyle: 'bold',
+          fontSize: 7,
+          lineWidth: 0
+        },
+        alternateRowStyles: { fillColor: [34,34,26] },
+        columnStyles: {
+          0: { cellWidth: 42 },
+          1: { cellWidth: 22, halign:'right', textColor:CREAM },
+          2: { cellWidth: 18, halign:'center' },
+          3: { cellWidth: 18, halign:'center', textColor:MUTED },
+          4: { cellWidth: 22 },
+          5: { cellWidth: 18, halign:'center', textColor:MUTED, font:'courier' },
+          6: { cellWidth: 22, halign:'right', textColor:GOLD, fontStyle:'bold' }
+        },
+        margin: { left:10, right:10 },
+        didDrawPage: function(d) { y = d.cursor.y; }
+      });
+
+      y = doc.lastAutoTable.finalY + 4;
+    } else {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      setTxt(MUTED);
+      doc.text('No expenses recorded for this month.', 13, y + 5);
+      y += 10;
+    }
+
+    // Settlement summary strip
+    var netDue = fm.netDue;
+    var stripColor = Math.abs(netDue) < 0.5 ? TEAL : netDue > 0 ? TEAL : ROSE;
+    var stripText  = Math.abs(netDue) < 0.5
+      ? 'All settled ✓'
+      : netDue > 0
+        ? n2 + ' owes ' + n1 + ': ' + fmtAmt(netDue)
+        : n1 + ' owes ' + n2 + ': ' + fmtAmt(-netDue);
+
+    if(fm.carryIn && Math.abs(fm.carryIn) > 0.5) {
+      stripText += '   (carry-in: ' + fmtAmt(fm.carryIn) + ')';
+    }
+
+    if(y > 268) { doc.addPage(); y = 14; }
+    setFill(stripColor);
+    doc.roundedRect(10, y, W - 20, 7, 1.5, 1.5, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    setTxt(BG);
+    doc.text(stripText, W / 2, y + 4.8, {align:'center'});
+    y += 12;
+
+    // Settlement & advance records (if any)
+    var hasSett = m.settlementPaid.length > 0;
+    var hasAdv  = m.advancePaid.length > 0;
+
+    if(hasSett || hasAdv) {
+      if(y > 250) { doc.addPage(); y = 14; }
+
+      var payRows = [];
+      m.settlementPaid.forEach(function(p) {
+        payRows.push(['Settlement', p.paidBy==='me'?n1:n2, fmtAmt(p.amount), fmtDate(p.date), p.note||'—']);
+      });
+      m.advancePaid.forEach(function(p) {
+        payRows.push(['Advance', p.paidBy==='me'?n1:n2, fmtAmt(p.amount), fmtDate(p.date), p.note||'—']);
+      });
+
+      doc.autoTable({
+        startY: y,
+        head: [['Type','Paid by','Amount','Date','Note']],
+        body: payRows,
+        theme: 'plain',
+        styles: {
+          font:'helvetica', fontSize:7.5,
+          cellPadding:{top:2,bottom:2,left:3,right:3},
+          textColor:[200,190,170],
+          fillColor:[30,30,22],
+          lineColor:[45,45,35],
+          lineWidth:0.2
+        },
+        headStyles: { fillColor:[22,22,16], textColor:MUTED, fontStyle:'bold', fontSize:7, lineWidth:0 },
+        columnStyles: {
+          0:{cellWidth:24, fontStyle:'bold', textColor:GOLD},
+          1:{cellWidth:22, halign:'center'},
+          2:{cellWidth:24, halign:'right', textColor:CREAM},
+          3:{cellWidth:22, halign:'center', textColor:MUTED},
+          4:{cellWidth:'auto'}
+        },
+        margin:{left:10, right:10}
+      });
+
+      y = doc.lastAutoTable.finalY + 8;
+    }
+  });
+
+  // ── Footer on every page ─────────────────────────────────
+  var totalPages = doc.internal.getNumberOfPages();
+  for(var p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    var fY = doc.internal.pageSize.getHeight() - 8;
+    setFill(BG);
+    doc.rect(0, fY - 4, W, 14, 'F');
+    setFill(GOLD);
+    doc.rect(0, fY - 4, W, 0.4, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    setTxt(MUTED);
+    doc.text('Our Finances — Household Tracker', 10, fY + 2);
+    doc.text('Page ' + p + ' of ' + totalPages, W - 10, fY + 2, {align:'right'});
+  }
+
+  doc.save('our-finances-' + new Date().toISOString().slice(0,10) + '.pdf');
+  toast('⬇ PDF exported', 'success');
+}
+
+
+
+/* ════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════ */
+function toast(msg, type) {
+  var container = document.getElementById('toast-container');
+  var el = document.createElement('div');
+  el.className = 'toast ' + (type||'info');
+  el.innerHTML = '<span>' + msg + '</span>';
+  container.appendChild(el);
+  setTimeout(function() {
+    el.classList.add('fade-out');
+    setTimeout(function(){ el.remove(); }, 300);
+  }, 2400);
+}
+
+/* ════════════════════════════════════════════════════
+   LIVE CLOCK
+════════════════════════════════════════════════════ */
+function updateClock() {
+  var now = new Date();
+  var d = now.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+  var t = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  var el = document.getElementById('live-clock');
+  if(el) el.textContent = d + ' · ' + t;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════ */
+function toKey(y, m) { return y + '-' + String(parseInt(m)+1).padStart(2,'0'); }
+function keyYear(k) { return parseInt(k.split('-')[0]); }
+function keyMonth(k) { return parseInt(k.split('-')[1])-1; }
+function fmtKey(k) { return SHORT_M[keyMonth(k)] + ' ' + keyYear(k); }
+function fmtKeyFull(k) { return MONTH_NAMES[keyMonth(k)] + ' ' + keyYear(k); }
+function fmtDate(iso) { if(!iso) return ''; var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function fmt(n) { return '₹' + Math.round(Math.abs(n)).toLocaleString('en-IN'); }
+function pct(a,b) { return b ? Math.round(a/b*100) : 0; }
+function uid() { return _nextId++; }
+function today() { return new Date().toISOString().split('T')[0]; }
+function nm() { return nameMe || 'Me'; }
+function np() { return namePartner || 'Spouse'; }
+
+function getMonth(key) {
+  if(!monthData[key]) monthData[key] = {expenses:[], settlementPaid:[], advancePaid:[]};
+  return monthData[key];
+}
+
+function calcShare(e) {
+  if(e.split==='equal') return e.amount * 0.5;
+  if(e.split==='me') return e.amount;
+  if(e.split==='partner') return 0;
+  return e.amount * (e.myShare / 100);
+}
+
+/* ════════════════════════════════════════════════════
+   SETTLEMENT LOGIC (fixed carry-forward)
+════════════════════════════════════════════════════ */
+function computeCarryInto(targetKey) {
+  var sorted = monthOrder.slice().sort();
+  var carry = 0;
+  for (var i = 0; i < sorted.length; i++) {
+    var key = sorted[i];
+    if (key >= targetKey) break;
+    var m = getMonth(key);
+    var exps = m.expenses;
+    var mePaid = exps.filter(function(e){return e.paidBy==='me';}).reduce(function(a,e){return a+e.amount;},0);
+    var myShare = exps.reduce(function(a,e){return a+calcShare(e);},0);
+    var baseDues = mePaid - myShare;
+    var advP = m.advancePaid.filter(function(p){return p.paidBy==='partner';}).reduce(function(a,p){return a+p.amount;},0);
+    var advM = m.advancePaid.filter(function(p){return p.paidBy==='me';}).reduce(function(a,p){return a+p.amount;},0);
+    var netAdv = advP - advM;
+    var grossDues = baseDues - carry;
+    var sP = m.settlementPaid.filter(function(p){return p.paidBy==='partner';}).reduce(function(a,p){return a+p.amount;},0);
+    var sM = m.settlementPaid.filter(function(p){return p.paidBy==='me';}).reduce(function(a,p){return a+p.amount;},0);
+    var netSett = sP - sM;
+    carry = netAdv + netSett - grossDues;
+  }
+  return carry;
+}
+
+function computeFullMonth(key) {
+  var m = getMonth(key);
+  var exps = m.expenses;
+  var total = exps.reduce(function(a,e){return a+e.amount;},0);
+  var mePaid = exps.filter(function(e){return e.paidBy==='me';}).reduce(function(a,e){return a+e.amount;},0);
+  var partnerPaid = total - mePaid;
+  var myShare = exps.reduce(function(a,e){return a+calcShare(e);},0);
+  var partnerShare = total - myShare;
+  var baseDues = mePaid - myShare;
+  var advP = m.advancePaid.filter(function(p){return p.paidBy==='partner';}).reduce(function(a,p){return a+p.amount;},0);
+  var advM = m.advancePaid.filter(function(p){return p.paidBy==='me';}).reduce(function(a,p){return a+p.amount;},0);
+  var netAdv = advP - advM;
+  var carryIn = computeCarryInto(key);
+  var grossDues = baseDues - carryIn;
+  var sP = m.settlementPaid.filter(function(p){return p.paidBy==='partner';}).reduce(function(a,p){return a+p.amount;},0);
+  var sM = m.settlementPaid.filter(function(p){return p.paidBy==='me';}).reduce(function(a,p){return a+p.amount;},0);
+  var netSett = sP - sM;
+  var netDue = grossDues - netAdv - netSett;
+  return {total,mePaid,partnerPaid,myShare,partnerShare,baseDues,carryIn,netAdv,grossDues,netSett,netDue,advP,advM,sP,sM};
+}
+
+/* ════════════════════════════════════════════════════
+   NAMES
+════════════════════════════════════════════════════ */
+function onNameChange() {
+  nameMe = document.getElementById('name-me').value.trim() || 'Me';
+  namePartner = document.getElementById('name-partner').value.trim() || 'Spouse';
+  document.getElementById('av-me').textContent = nameMe.substring(0,2).toUpperCase();
+  document.getElementById('av-partner').textContent = namePartner.substring(0,2).toUpperCase();
+  refreshNameSelects();
+  saveState();
+  renderMain();
+}
+
+function refreshNameSelects() {
+  ['f-paidby','sp-paidby','ap-paidby'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(el.options[0]) el.options[0].text = nm();
+    if(el.options[1]) el.options[1].text = np();
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   MONTH MANAGEMENT
+════════════════════════════════════════════════════ */
+function addMonth(year, month) {
+  var key = toKey(year, month);
+  if(monthOrder.indexOf(key) !== -1) { toast('⚠ This month already exists', 'error'); return; }
+  getMonth(key);
+  monthOrder.push(key);
+  monthOrder.sort();
+  activeView = key;
+  saveState();
+  renderSidebar();
+  renderMain();
+  toast('📅 ' + fmtKeyFull(key) + ' added', 'success');
+}
+
+function deleteMonth(key) {
+  if(!confirm('Delete ' + fmtKeyFull(key) + ' and all its data?')) return;
+  delete monthData[key];
+  monthOrder = monthOrder.filter(function(k){return k!==key;});
+  if(activeView === key) activeView = monthOrder.length ? monthOrder[monthOrder.length-1] : 'annual';
+  saveState();
+  renderSidebar();
+  renderMain();
+  toast('🗑 Month deleted', 'info');
+}
+
+function submitAddMonth() {
+  var y = parseInt(document.getElementById('nm-year').value);
+  var m = parseInt(document.getElementById('nm-month').value);
+  if(!y || isNaN(m)) { toast('⚠ Please enter a valid year and month', 'error'); return; }
+  closeModal('modal-month');
+  addMonth(y, m);
+}
+
+/* ════════════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════════════ */
+function renderSidebar() {
+  var sorted = monthOrder.slice().sort();
+  var html = '<div class="nav-section-label">Views</div>';
+  html += '<button class="nav-item' + (activeView==='annual'?' active':'') + '" onclick="setView(\'annual\')">';
+  html += '<span class="nav-icon">◈</span><span class="nav-month-label">Annual overview</span></button>';
+  html += '<div class="nav-section-label" style="margin-top:4px;">Monthly sheets</div>';
+  sorted.forEach(function(key) {
+    var fm = computeFullMonth(key);
+    var pillCls = Math.abs(fm.netDue) < 0.5 ? 'zero' : fm.netDue > 0 ? 'pos' : 'neg';
+    var pillTxt = Math.abs(fm.netDue) < 0.5 ? '✓' : fmt(Math.abs(fm.netDue));
+    html += '<button class="nav-item' + (activeView===key?' active':'') + '" onclick="setView(\'' + key + '\')">';
+    html += '<span class="nav-icon">◻</span><span class="nav-month-label">' + fmtKey(key) + '</span>';
+    html += '<span class="nav-pill ' + pillCls + '">' + pillTxt + '</span>';
+    html += '<span class="nav-del" onclick="event.stopPropagation();deleteMonth(\'' + key + '\')" title="Delete">✕</span></button>';
+  });
+  html += '<button class="add-month-btn" onclick="openMonthModal()"><span>+</span> Add month</button>';
+  document.getElementById('sidebar-nav').innerHTML = html;
+}
+
+function setView(v) {
+  activeView = v;
+  _searchQuery = '';
+  saveState();
+  renderSidebar();
+  renderMain();
+}
+
+/* ════════════════════════════════════════════════════
+   CHART HELPERS
+════════════════════════════════════════════════════ */
+function destroyChart(id) {
+  if(_charts[id]) { try{_charts[id].destroy();}catch(e){} delete _charts[id]; }
+}
+
+function makeDoughnut(canvasId, labels, data, colors) {
+  var el = document.getElementById(canvasId);
+  if(!el) return null;
+  return new Chart(el, {
+    type:'doughnut',
+    data:{labels:labels, datasets:[{data:data, backgroundColor:colors, borderWidth:0, hoverOffset:4}]},
+    options:{responsive:true, maintainAspectRatio:false, cutout:'72%',
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){
+        var total = data.reduce(function(a,b){return a+b;},0);
+        return ' '+fmt(c.raw)+' ('+pct(c.raw,total)+'%)';
+      }}}}}
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   MAIN RENDER ROUTER
+════════════════════════════════════════════════════ */
+function renderMain() {
+  var main = document.getElementById('main-area');
+  if(activeView === 'annual') {
+    main.innerHTML = buildAnnualHTML();
+    renderAnnualCharts();
+  } else {
+    main.innerHTML = buildMonthHTML(activeView);
+    renderMonthCharts(activeView);
+  }
+  // Restore date fields
+  ['sp-date','ap-date'].forEach(function(id){
+    var el=document.getElementById(id); if(el && !el.value) el.value=today();
+  });
+  refreshNameSelects();
+  // Restore search if any
+  if(_searchQuery && activeView !== 'annual') {
+    var sb = document.getElementById('main-search');
+    if(sb) sb.value = _searchQuery;
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   CARD / MC HELPERS
+════════════════════════════════════════════════════ */
+function mc(cls, lbl, val, sub) {
+  return '<div class="metric-card '+cls+'"><div class="metric-label">'+lbl+'</div><div class="metric-value">'+val+'</div><div class="metric-sub">'+sub+'</div></div>';
+}
+function mc2(cls, lbl, val, sub, valCls) {
+  return '<div class="metric-card '+cls+'"><div class="metric-label">'+lbl+'</div><div class="metric-value '+(valCls||'')+'">'+val+'</div><div class="metric-sub">'+sub+'</div></div>';
+}
+
+/* ════════════════════════════════════════════════════
+   ANNUAL OVERVIEW HTML
+════════════════════════════════════════════════════ */
+function buildAnnualHTML() {
+  var sorted = monthOrder.slice().sort();
+  var allExp = [];
+  sorted.forEach(function(k){ allExp = allExp.concat((monthData[k]||{expenses:[]}).expenses); });
+
+  var annTotal = allExp.reduce(function(a,e){return a+e.amount;},0);
+  var annMePaid = allExp.filter(function(e){return e.paidBy==='me';}).reduce(function(a,e){return a+e.amount;},0);
+  var annPartnerPaid = annTotal - annMePaid;
+
+  var annNetDue = 0;
+  if(sorted.length) annNetDue = computeFullMonth(sorted[sorted.length-1]).netDue;
+
+  var cats = {};
+  allExp.forEach(function(e){ cats[e.cat] = (cats[e.cat]||0) + e.amount; });
+  var catKeys = Object.keys(cats).sort(function(a,b){return cats[b]-cats[a];});
+  var maxCat = catKeys.length ? cats[catKeys[0]] : 1;
+  var catHTML = '';
+  if(catKeys.length) {
+    catHTML = '<table class="cat-table"><thead><tr><th>Category</th><th class="num">Total</th><th class="num">Share</th><th>Trend</th></tr></thead><tbody>';
+    catKeys.forEach(function(c) {
+      catHTML += '<tr><td>'+c+'</td><td class="num">'+fmt(cats[c])+'</td><td class="num">'+pct(cats[c],annTotal)+'%</td>';
+      catHTML += '<td><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:'+pct(cats[c],maxCat)+'%"></div></div></td></tr>';
+    });
+    catHTML += '</tbody></table>';
+  } else {
+    catHTML = '<div class="empty-state" style="padding:20px"><div class="big">📊</div>No data yet</div>';
+  }
+
+  var monthCardsHTML = '';
+  if(sorted.length) {
+    sorted.forEach(function(key) {
+      var fm = computeFullMonth(key);
+      var sign = fm.netDue > 0.5 ? 'pos' : fm.netDue < -0.5 ? 'neg' : '';
+      var lbl = fm.netDue > 0.5 ? np()+' owes' : fm.netDue < -0.5 ? nm()+' owes' : 'Settled ✓';
+      monthCardsHTML += '<div class="annual-month-card" onclick="setView(\''+key+'\')"><div class="amc-title">'+fmtKeyFull(key)+'</div>';
+      monthCardsHTML += '<div class="amc-row"><span>Total</span><span class="amc-val">'+fmt(fm.total)+'</span></div>';
+      monthCardsHTML += '<div class="amc-row"><span>'+nm()+' paid</span><span class="amc-val">'+fmt(fm.mePaid)+'</span></div>';
+      monthCardsHTML += '<div class="amc-row"><span>'+np()+' paid</span><span class="amc-val">'+fmt(fm.partnerPaid)+'</span></div>';
+      monthCardsHTML += '<div class="amc-divider"></div>';
+      monthCardsHTML += '<div class="amc-row"><span>'+lbl+'</span><span class="amc-val '+sign+'">'+fmt(Math.abs(fm.netDue))+'</span></div></div>';
+    });
+  } else {
+    monthCardsHTML = '<div class="empty-state"><div class="big">📅</div>Add a month to get started</div>';
+  }
+
+  var netValClass = annNetDue > 0.5 ? 'pos' : annNetDue < -0.5 ? 'neg' : '';
+  var netLabel = annNetDue > 0.5 ? np()+' owes you' : annNetDue < -0.5 ? 'You owe '+np() : 'All clear';
+
+  return '<div class="page-header"><div><h1 class="page-title">Annual <em>overview</em></h1><p class="page-subtitle">Across all tracked months</p></div>'
+    + '<div class="header-actions"><button class="add-btn-main secondary" onclick="openMonthModal()">+ Add month</button></div></div>'
+    + '<div class="page-content">'
+    + '<div class="metrics-row">'
+    + mc('c-gold','Total expenses',fmt(annTotal),allExp.length+' transactions · '+sorted.length+' months')
+    + mc('c-blue',nm()+' paid',fmt(annMePaid),pct(annMePaid,annTotal)+'% of total')
+    + mc('c-teal',np()+' paid',fmt(annPartnerPaid),pct(annPartnerPaid,annTotal)+'% of total')
+    + mc2('c-rose','Current net balance',fmt(Math.abs(annNetDue)),netLabel,netValClass)
+    + '</div>'
+    + '<div class="charts-row">'
+    + '<div class="chart-card"><div class="chart-title">Paid by</div><div style="position:relative;height:160px;"><canvas id="ann-splitChart"></canvas></div><div class="legend" id="ann-split-legend"></div></div>'
+    + '<div class="chart-card"><div class="chart-title">Liability split</div><div style="position:relative;height:160px;"><canvas id="ann-shareChart"></canvas></div><div class="legend" id="ann-share-legend"></div></div>'
+    + '<div class="chart-card"><div class="chart-title">By category</div><div class="cat-table-wrap">'+catHTML+'</div></div>'
+    + '</div>'
+    + '<div class="section-hdr">Monthly summary</div>'
+    + '<div class="annual-months-row">'+monthCardsHTML+'</div>'
+    + '<div class="full-chart-card"><div class="chart-title">Monthly spend by share</div><div style="position:relative;height:220px;"><canvas id="ann-monthChart"></canvas></div><div class="legend" id="ann-month-legend"></div></div>'
+    + '</div>';
+}
+
+function renderAnnualCharts() {
+  var sorted = monthOrder.slice().sort();
+  var allExp = [];
+  sorted.forEach(function(k){ allExp = allExp.concat((monthData[k]||{expenses:[]}).expenses); });
+
+  var mePaid = allExp.filter(function(e){return e.paidBy==='me';}).reduce(function(a,e){return a+e.amount;},0);
+  var partnerPaid = allExp.filter(function(e){return e.paidBy==='partner';}).reduce(function(a,e){return a+e.amount;},0);
+  var total = mePaid + partnerPaid;
+  var myShare = allExp.reduce(function(a,e){return a+calcShare(e);},0);
+  var partnerShare = total - myShare;
+
+  destroyChart('ann-split'); destroyChart('ann-share'); destroyChart('ann-month');
+
+  var c1 = makeDoughnut('ann-splitChart',[nm(),np()],[Math.round(mePaid),Math.round(partnerPaid)],['#6090c0','#d4a853']);
+  if(c1) _charts['ann-split'] = c1;
+  var leg1 = document.getElementById('ann-split-legend');
+  if(leg1) leg1.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:#6090c0"></div>'+nm()+' '+pct(mePaid,total)+'%</div><div class="legend-item"><div class="legend-dot" style="background:#d4a853"></div>'+np()+' '+pct(partnerPaid,total)+'%</div>';
+
+  var c2 = makeDoughnut('ann-shareChart',[nm(),np()],[Math.round(myShare),Math.round(partnerShare)],['#6090c0','#d4a853']);
+  if(c2) _charts['ann-share'] = c2;
+  var leg2 = document.getElementById('ann-share-legend');
+  if(leg2) leg2.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:#6090c0"></div>'+nm()+' '+pct(myShare,total)+'%</div><div class="legend-item"><div class="legend-dot" style="background:#d4a853"></div>'+np()+' '+pct(partnerShare,total)+'%</div>';
+
+  var mc3 = document.getElementById('ann-monthChart');
+  if(mc3 && sorted.length) {
+    var mMe = sorted.map(function(k){ var ex=(monthData[k]||{expenses:[]}).expenses; return Math.round(ex.reduce(function(a,e){return a+calcShare(e);},0)); });
+    var mPart = sorted.map(function(k){ var ex=(monthData[k]||{expenses:[]}).expenses; var tot=ex.reduce(function(a,e){return a+e.amount;},0); var ms=ex.reduce(function(a,e){return a+calcShare(e);},0); return Math.round(tot-ms); });
+    _charts['ann-month'] = new Chart(mc3,{
+      type:'bar',
+      data:{labels:sorted.map(fmtKey), datasets:[
+        {label:nm(), data:mMe, backgroundColor:'rgba(96,144,192,0.7)', borderRadius:4, borderWidth:0},
+        {label:np(), data:mPart, backgroundColor:'rgba(212,168,83,0.7)', borderRadius:4, borderWidth:0}
+      ]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{x:{stacked:true, ticks:{color:'#888070',font:{size:11}}, grid:{display:false}},
+                y:{stacked:true, ticks:{callback:function(v){return '₹'+Math.round(v/1000)+'k';},color:'#888070',font:{size:10}}, grid:{color:'rgba(255,245,200,0.05)'}}}}
+    });
+    var leg3 = document.getElementById('ann-month-legend');
+    if(leg3) leg3.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:rgba(96,144,192,0.7)"></div>'+nm()+'\'s share</div><div class="legend-item"><div class="legend-dot" style="background:rgba(212,168,83,0.7)"></div>'+np()+'\'s share</div>';
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   MONTHLY SHEET HTML
+════════════════════════════════════════════════════ */
+function buildMonthHTML(key) {
+  var m = getMonth(key);
+  var fm = computeFullMonth(key);
+  var n1 = nm(), n2 = np();
+
+  // Banner
+  var bCls, bHead, bSub, bAmt, quickBtn='';
+  if(fm.netDue > 0.5) {
+    bCls='owe-me'; bHead=n2+' owes you'; bSub='After all adjustments, '+n2+' still needs to pay you.';
+    bAmt='<div class="settle-amount pos">'+fmt(fm.netDue)+'</div>';
+    quickBtn='<button class="quick-settle-btn" onclick="quickSettle(\''+key+'\',\'partner\','+fm.netDue+')">Mark as Settled ✓</button>';
+  } else if(fm.netDue < -0.5) {
+    bCls='owe-partner'; bHead='You owe '+n2; bSub='After all adjustments, you still need to pay.';
+    bAmt='<div class="settle-amount neg">'+fmt(-fm.netDue)+'</div>';
+    quickBtn='<button class="quick-settle-btn" onclick="quickSettle(\''+key+'\',\'me\','+(-fm.netDue)+')">Mark as Settled ✓</button>';
+  } else {
+    bCls='settled'; bHead='All settled!'; bSub='No outstanding balance for this month.';
+    bAmt='<div class="settle-amount" style="font-size:30px;color:var(--accent)">✓</div>';
+  }
+
+  // Carry-forward note
+  var carryNote = '';
+  if(Math.abs(fm.carryIn) > 0.5) {
+    carryNote = '<div class="carry-fwd-note"><strong>Carry-forward applied:</strong> '
+      + (fm.carryIn > 0
+        ? n2+' had a net advance of <strong>'+fmt(fm.carryIn)+'</strong> from prior months — applied to reduce their dues.'
+        : 'You had a net advance of <strong>'+fmt(-fm.carryIn)+'</strong> from prior months — applied to reduce your dues.')
+      + '</div>';
+  }
+
+  // Filter expenses
+  var exps = m.expenses.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+  if(_searchQuery) {
+    var q = _searchQuery.toLowerCase();
+    exps = exps.filter(function(e){ return e.desc.toLowerCase().indexOf(q)!==-1 || e.cat.toLowerCase().indexOf(q)!==-1; });
+  }
+
+  // Expense table
+  var tableBody = '';
+  if(exps.length) {
+    exps.forEach(function(e, i) {
+      var myS = calcShare(e);
+      var splitLabel = e.split==='equal'?'50/50':e.split==='me'?'100% mine':e.split==='partner'?'100% theirs':(e.myShare+'%/'+(100-e.myShare)+'%');
+      var pb = e.paidBy==='me'?('<span class="badge badge-me">'+n1+'</span>'):('<span class="badge badge-partner">'+n2+'</span>');
+      tableBody += '<div class="table-row" style="animation-delay:'+i*0.02+'s">'
+        + '<span class="row-desc">'+escHtml(e.desc)+'</span>'
+        + '<span class="row-amount">'+fmt(e.amount)+'</span>'
+        + '<span>'+pb+'</span>'
+        + '<span><span class="badge badge-split">'+splitLabel+'</span></span>'
+        + '<span class="row-cat">'+e.cat+'</span>'
+        + '<span class="row-date">'+fmtDate(e.date)+'</span>'
+        + '<span class="row-share">'+fmt(myS)+'</span>'
+        + '<span class="row-actions">'
+        + '<button class="edit-btn" onclick="openEditExpense(\''+key+'\','+e.id+')" title="Edit">✎</button>'
+        + '<button class="del-btn" onclick="deleteExp(\''+key+'\','+e.id+')" title="Delete">✕</button>'
+        + '</span>'
+        + '</div>';
+    });
+  } else {
+    var emptyMsg = _searchQuery ? 'No results for "'+escHtml(_searchQuery)+'"' : 'No expenses yet. Add your first one!';
+    tableBody = '<div class="empty-state"><div class="big">📋</div>'+emptyMsg+'</div>';
+  }
+
+  // Lists
+  function payList(items, delFn) {
+    if(!items.length) return '<div style="font-size:12px;color:var(--muted);padding:8px 0;">No records yet</div>';
+    return items.map(function(p){
+      return '<div class="payment-row">'
+        + '<span class="payment-desc"><span class="badge '+(p.paidBy==='me'?'badge-me':'badge-partner')+'">'+(p.paidBy==='me'?n1:n2)+'</span>'+(p.note?' — '+escHtml(p.note):'')+'</span>'
+        + '<span class="payment-right"><span class="payment-amt">'+fmt(p.amount)+'</span><span class="payment-meta">'+fmtDate(p.date)+'</span>'
+        + '<button class="del-btn" onclick="'+delFn+'(\''+key+'\','+p.id+')" title="Remove">✕</button></span></div>';
+    }).join('');
+  }
+
+  // Breakdown
+  function bRow(lbl, val, valCls) {
+    return '<div class="breakdown-row"><span>'+lbl+'</span><span class="breakdown-val '+(valCls||'')+'">'+val+'</span></div>';
+  }
+  var breakdown = bRow('Base dues (from expenses)', fm.baseDues>=0?fmt(fm.baseDues)+' ('+n2+' owes)':fmt(-fm.baseDues)+' (you owe)');
+  if(Math.abs(fm.carryIn)>0.5) breakdown += bRow('Carry-forward from prior months', fm.carryIn>=0?'− '+fmt(fm.carryIn):'+ '+fmt(-fm.carryIn));
+  breakdown += bRow('Gross due this month', fm.grossDues>=0?fmt(fm.grossDues)+' ('+n2+' owes)':fmt(-fm.grossDues)+' (you owe)');
+  if(Math.abs(fm.netAdv)>0.5) breakdown += bRow('Advance payments (this month)', fm.netAdv>=0?'− '+fmt(fm.netAdv):'+ '+fmt(-fm.netAdv));
+  if(Math.abs(fm.netSett)>0.5) breakdown += bRow('Settlement paid (this month)', fm.netSett>=0?'− '+fmt(fm.netSett):'+ '+fmt(-fm.netSett));
+  var remVal = Math.abs(fm.netDue)<0.5?'Settled ✓':fmt(Math.abs(fm.netDue));
+  var remCls = fm.netDue>0.5?'pos':fm.netDue<-0.5?'neg':'';
+  breakdown += '<div class="breakdown-row"><span style="color:var(--cream2);">Net remaining</span><span class="breakdown-val '+remCls+'" style="font-size:15px;">'+remVal+'</span></div>';
+
+  var netValClass = fm.netDue > 0.5 ? 'pos' : fm.netDue < -0.5 ? 'neg' : '';
+
+  return '<div class="page-header">'
+    + '<div><h1 class="page-title">'+MONTH_NAMES[keyMonth(key)]+' <em>'+keyYear(key)+'</em></h1><p class="page-subtitle">Monthly expense sheet</p></div>'
+    + '<div class="header-actions">'
+    + '<span class="kbd-hint" title="Keyboard shortcut">N</span>'
+    + '<button class="add-btn-main" onclick="openExpenseModal(\''+key+'\')"><span style="font-size:17px;line-height:1;">+</span> Add expense</button>'
+    + '</div>'
+    + '</div>'
+
+    // SEARCH
+    + '<div class="search-bar-wrap"><input class="search-bar" id="main-search" placeholder="🔍  Search expenses by description or category…" oninput="onSearch(this.value)" value="'+escHtml(_searchQuery)+'"></div>'
+
+    + '<div class="page-content">'
+    + '<div class="metrics-row">'
+    + mc('c-gold','Total expenses',fmt(fm.total),m.expenses.length+' transactions')
+    + mc('c-blue',n1+' paid',fmt(fm.mePaid),'Share: '+fmt(fm.myShare))
+    + mc('c-teal',n2+' paid',fmt(fm.partnerPaid),'Share: '+fmt(fm.partnerShare))
+    + mc2('c-rose','Net settlement due',Math.abs(fm.netDue)<0.5?'Settled':fmt(Math.abs(fm.netDue)), fm.netDue>0.5?n2+' owes you':fm.netDue<-0.5?'You owe '+n2:'All clear!', netValClass)
+    + '</div>'
+
+    + '<div class="charts-row">'
+    + '<div class="chart-card"><div class="chart-title">Paid by</div><div style="position:relative;height:160px;"><canvas id="m-splitChart"></canvas></div><div class="legend" id="m-split-legend"></div></div>'
+    + '<div class="chart-card"><div class="chart-title">Liability split</div><div style="position:relative;height:160px;"><canvas id="m-shareChart"></canvas></div><div class="legend" id="m-share-legend"></div></div>'
+    + '<div class="chart-card"><div class="chart-title">By category</div><div style="position:relative;height:170px;"><canvas id="m-catChart"></canvas></div></div>'
+    + '</div>'
+
+    + '<div class="table-card" style="margin-bottom:16px;">'
+    + '<div class="table-head"><span>Description</span><span>Amount</span><span>Paid by</span><span>Split</span><span>Category</span><span>Date</span><span>Your share</span><span></span></div>'
+    + '<div class="table-body">'+tableBody+'</div></div>'
+
+    + '<div class="settle-banner '+bCls+'">'
+    + '<div class="settle-left"><div class="settle-headline">'+bHead+'</div><div class="settle-sub">'+bSub+'</div></div>'
+    + '<div class="settle-banner-right">'+bAmt+quickBtn+'</div></div>'
+    + carryNote
+
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;">'
+
+    + '<div class="settle-section"><div class="settle-section-title">Settlement breakdown</div>'+breakdown+'</div>'
+
+    + '<div class="settle-section"><div class="settle-section-title">Record settlement payment</div>'
+    + '<div class="settle-input-row">'
+    + '<div><div class="s-label">Paid by</div><select class="s-input" id="sp-paidby"><option value="me">'+n1+'</option><option value="partner">'+n2+'</option></select></div>'
+    + '<div><div class="s-label">Amount (₹)</div><input class="s-input num-input" id="sp-amount" type="number" min="0" placeholder="0" step="0.01"></div>'
+    + '<div><div class="s-label">Date</div><input class="s-input" id="sp-date" type="date" value="'+today()+'"></div>'
+    + '</div>'
+    + '<div><div class="s-label">Note (optional)</div><input class="s-input s-full" id="sp-note" placeholder="e.g. UPI transfer"></div>'
+    + '<button class="save-btn" onclick="saveSettlement(\''+key+'\')">Save payment</button>'
+    + '<div class="payment-list">'+payList(m.settlementPaid,'delSettlement')+'</div></div>'
+    + '</div>'
+
+    + '<div class="settle-section"><div class="settle-section-title">Advance payments <span style="font-weight:400;font-size:10px;color:var(--muted);text-transform:none;">(carries forward to next month)</span></div>'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Any advance recorded here will automatically carry forward and reduce next month\'s settlement dues.'
+    + (Math.abs(fm.carryIn)>0.5?'<br><strong style="color:var(--accent2);">'+fmt(Math.abs(fm.carryIn))+'</strong> carry-forward from prior months is already applied above.':'')
+    + '</div>'
+    + '<div class="settle-input-row">'
+    + '<div><div class="s-label">Paid by</div><select class="s-input" id="ap-paidby"><option value="me">'+n1+'</option><option value="partner">'+n2+'</option></select></div>'
+    + '<div><div class="s-label">Amount (₹)</div><input class="s-input num-input" id="ap-amount" type="number" min="0" placeholder="0" step="0.01"></div>'
+    + '<div><div class="s-label">Date</div><input class="s-input" id="ap-date" type="date" value="'+today()+'"></div>'
+    + '</div>'
+    + '<div><div class="s-label">Note (optional)</div><input class="s-input s-full" id="ap-note" placeholder="e.g. Paid ahead for next month"></div>'
+    + '<button class="save-btn" onclick="saveAdvance(\''+key+'\')">Save advance</button>'
+    + '<div class="payment-list">'+payList(m.advancePaid,'delAdvance')+'</div></div>'
+    + '</div>';
+}
+
+function renderMonthCharts(key) {
+  var m = getMonth(key);
+  var exps = m.expenses;
+  var n1 = nm(), n2 = np();
+  var mePaid = exps.filter(function(e){return e.paidBy==='me';}).reduce(function(a,e){return a+e.amount;},0);
+  var partnerPaid = exps.filter(function(e){return e.paidBy==='partner';}).reduce(function(a,e){return a+e.amount;},0);
+  var total = mePaid + partnerPaid;
+  var myShare = exps.reduce(function(a,e){return a+calcShare(e);},0);
+  var partnerShare = total - myShare;
+  destroyChart('m-split'); destroyChart('m-share'); destroyChart('m-cat');
+  var c1 = makeDoughnut('m-splitChart',[n1,n2],[Math.round(mePaid),Math.round(partnerPaid)],['#6090c0','#d4a853']);
+  if(c1) _charts['m-split'] = c1;
+  var l1 = document.getElementById('m-split-legend');
+  if(l1) l1.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:#6090c0"></div>'+n1+' '+pct(mePaid,total)+'%</div><div class="legend-item"><div class="legend-dot" style="background:#d4a853"></div>'+n2+' '+pct(partnerPaid,total)+'%</div>';
+  var c2 = makeDoughnut('m-shareChart',[n1,n2],[Math.round(myShare),Math.round(partnerShare)],['#6090c0','#d4a853']);
+  if(c2) _charts['m-share'] = c2;
+  var l2 = document.getElementById('m-share-legend');
+  if(l2) l2.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:#6090c0"></div>'+n1+' '+pct(myShare,total)+'%</div><div class="legend-item"><div class="legend-dot" style="background:#d4a853"></div>'+n2+' '+pct(partnerShare,total)+'%</div>';
+  var cc = document.getElementById('m-catChart');
+  if(cc) {
+    var cats={};
+    exps.forEach(function(e){ cats[e.cat]=(cats[e.cat]||0)+e.amount; });
+    var catKeys=Object.keys(cats).sort(function(a,b){return cats[b]-cats[a];});
+    _charts['m-cat'] = new Chart(cc,{
+      type:'bar',
+      data:{labels:catKeys,datasets:[{data:catKeys.map(function(k){return Math.round(cats[k]);}),backgroundColor:'rgba(90,184,154,0.5)',borderColor:'rgba(90,184,154,0.8)',borderWidth:1,borderRadius:4}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{callback:function(v){return '₹'+Math.round(v/1000)+'k';},color:'#888070',font:{size:10}},grid:{color:'rgba(255,245,200,0.05)'}},
+                y:{ticks:{color:'#b0a888',font:{size:10}},grid:{display:false}}}}
+    });
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   SEARCH
+════════════════════════════════════════════════════ */
+function onSearch(val) {
+  _searchQuery = val;
+  // Only re-render table section, not charts
+  var key = activeView;
+  if(key === 'annual') return;
+  var m = getMonth(key);
+  var n1=nm(),n2=np();
+  var exps = m.expenses.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+  if(_searchQuery) {
+    var q = _searchQuery.toLowerCase();
+    exps = exps.filter(function(e){ return e.desc.toLowerCase().indexOf(q)!==-1 || e.cat.toLowerCase().indexOf(q)!==-1; });
+  }
+  var tableBody = '';
+  if(exps.length) {
+    exps.forEach(function(e,i){
+      var myS=calcShare(e);
+      var splitLabel=e.split==='equal'?'50/50':e.split==='me'?'100% mine':e.split==='partner'?'100% theirs':(e.myShare+'%/'+(100-e.myShare)+'%');
+      var pb=e.paidBy==='me'?('<span class="badge badge-me">'+n1+'</span>'):('<span class="badge badge-partner">'+n2+'</span>');
+      tableBody+='<div class="table-row" style="animation-delay:'+i*0.02+'s">'
+        +'<span class="row-desc">'+escHtml(e.desc)+'</span>'
+        +'<span class="row-amount">'+fmt(e.amount)+'</span>'
+        +'<span>'+pb+'</span>'
+        +'<span><span class="badge badge-split">'+splitLabel+'</span></span>'
+        +'<span class="row-cat">'+e.cat+'</span>'
+        +'<span class="row-date">'+fmtDate(e.date)+'</span>'
+        +'<span class="row-share">'+fmt(myS)+'</span>'
+        +'<span class="row-actions">'
+        +'<button class="edit-btn" onclick="openEditExpense(\''+key+'\','+e.id+')" title="Edit">✎</button>'
+        +'<button class="del-btn" onclick="deleteExp(\''+key+'\','+e.id+')" title="Delete">✕</button>'
+        +'</span></div>';
+    });
+  } else {
+    tableBody='<div class="empty-state"><div class="big">🔍</div>No results for "'+escHtml(_searchQuery)+'"</div>';
+  }
+  var tb = document.querySelector('.table-body');
+  if(tb) tb.innerHTML = tableBody;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ════════════════════════════════════════════════════
+   EXPENSE CRUD
+════════════════════════════════════════════════════ */
+function openExpenseModal(key) {
+  _expModalKey = key;
+  _editExpId = null;
+  document.getElementById('modal-expense-title').textContent = 'New expense';
+  document.getElementById('btn-expense-save').textContent = 'Save expense';
+  document.getElementById('f-date').value = today();
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-amount').value = '';
+  document.getElementById('f-split').value = 'equal';
+  document.getElementById('f-paidby').value = 'me';
+  document.getElementById('f-cat').value = 'Groceries';
+  document.getElementById('custom-row').style.display = 'none';
+  openModal('modal-expense');
+  setTimeout(function(){ document.getElementById('f-desc').focus(); }, 100);
+}
+
+function openEditExpense(key, id) {
+  var m = getMonth(key);
+  var e = m.expenses.find(function(x){ return x.id === id; });
+  if(!e) return;
+  _expModalKey = key;
+  _editExpId = id;
+  document.getElementById('modal-expense-title').textContent = 'Edit expense';
+  document.getElementById('btn-expense-save').textContent = 'Update expense';
+  document.getElementById('f-date').value = e.date;
+  document.getElementById('f-desc').value = e.desc;
+  document.getElementById('f-amount').value = e.amount;
+  document.getElementById('f-split').value = e.split;
+  document.getElementById('f-paidby').value = e.paidBy;
+  document.getElementById('f-cat').value = e.cat;
+  document.getElementById('f-myshare').value = e.myShare || 50;
+  document.getElementById('custom-row').style.display = e.split==='custom' ? 'block' : 'none';
+  openModal('modal-expense');
+  setTimeout(function(){ document.getElementById('f-desc').focus(); }, 100);
+}
+
+function toggleCustomSplit() {
+  document.getElementById('custom-row').style.display =
+    document.getElementById('f-split').value === 'custom' ? 'block' : 'none';
+}
+
+function submitExpense() {
+  var desc = document.getElementById('f-desc').value.trim();
+  var amount = parseFloat(document.getElementById('f-amount').value);
+  if(!desc || !amount || amount <= 0) { toast('⚠ Please enter a valid description and amount', 'error'); return; }
+  var split = document.getElementById('f-split').value;
+  var myShare = split==='equal'?50:split==='me'?100:split==='partner'?0:parseInt(document.getElementById('f-myshare').value)||50;
+  var entry = {
+    id: _editExpId !== null ? _editExpId : uid(),
+    desc:desc, amount:amount,
+    paidBy:document.getElementById('f-paidby').value,
+    split:split, myShare:myShare,
+    cat:document.getElementById('f-cat').value,
+    date:document.getElementById('f-date').value
+  };
+  var m = getMonth(_expModalKey);
+  if(_editExpId !== null) {
+    m.expenses = m.expenses.map(function(e){ return e.id === _editExpId ? entry : e; });
+    toast('✎ Expense updated', 'success');
+  } else {
+    m.expenses.push(entry);
+    toast('✓ Expense added', 'success');
+  }
+  closeModal('modal-expense');
+  saveState();
+  renderSidebar();
+  renderMain();
+}
+
+function deleteExp(key, id) {
+  if(!confirm('Delete this expense?')) return;
+  getMonth(key).expenses = getMonth(key).expenses.filter(function(e){return e.id!==id;});
+  saveState();
+  renderSidebar();
+  renderMain();
+  toast('🗑 Expense deleted', 'info');
+}
+
+/* ════════════════════════════════════════════════════
+   QUICK SETTLE
+════════════════════════════════════════════════════ */
+function quickSettle(key, paidBy, amount) {
+  getMonth(key).settlementPaid.push({
+    id:uid(), paidBy:paidBy, amount:Math.round(amount*100)/100, date:today(), note:'Quick settle'
+  });
+  saveState();
+  renderSidebar();
+  renderMain();
+  toast('✓ Marked as settled', 'success');
+}
+
+/* ════════════════════════════════════════════════════
+   SETTLEMENT / ADVANCE CRUD
+════════════════════════════════════════════════════ */
+function saveSettlement(key) {
+  var amount = parseFloat(document.getElementById('sp-amount').value);
+  if(!amount || amount <= 0) { toast('⚠ Please enter a valid amount', 'error'); return; }
+  getMonth(key).settlementPaid.push({
+    id:uid(), paidBy:document.getElementById('sp-paidby').value,
+    amount:amount, date:document.getElementById('sp-date').value,
+    note:document.getElementById('sp-note').value.trim()
+  });
+  document.getElementById('sp-amount').value = '';
+  document.getElementById('sp-note').value = '';
+  saveState();
+  renderSidebar();
+  renderMain();
+  toast('✓ Settlement recorded', 'success');
+}
+
+function saveAdvance(key) {
+  var amount = parseFloat(document.getElementById('ap-amount').value);
+  if(!amount || amount <= 0) { toast('⚠ Please enter a valid amount', 'error'); return; }
+  getMonth(key).advancePaid.push({
+    id:uid(), paidBy:document.getElementById('ap-paidby').value,
+    amount:amount, date:document.getElementById('ap-date').value,
+    note:document.getElementById('ap-note').value.trim()
+  });
+  document.getElementById('ap-amount').value = '';
+  document.getElementById('ap-note').value = '';
+  saveState();
+  renderSidebar();
+  renderMain();
+  toast('✓ Advance recorded', 'success');
+}
+
+function delSettlement(key, id) {
+  if(!confirm('Remove this settlement record?')) return;
+  getMonth(key).settlementPaid = getMonth(key).settlementPaid.filter(function(p){return p.id!==id;});
+  saveState();
+  renderSidebar();
+  renderMain();
+  toast('🗑 Settlement removed', 'info');
+}
+
+function delAdvance(key, id) {
+  if(!confirm('Remove this advance record?')) return;
+  getMonth(key).advancePaid = getMonth(key).advancePaid.filter(function(p){return p.id!==id;});
+  saveState();
+  renderSidebar();
+  renderMain();
+  toast('🗑 Advance removed', 'info');
+}
+
+/* ════════════════════════════════════════════════════
+   MODAL HELPERS
+════════════════════════════════════════════════════ */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openMonthModal() {
+  var now = new Date();
+  document.getElementById('nm-year').value = now.getFullYear();
+  document.getElementById('nm-month').value = now.getMonth();
+  openModal('modal-month');
+  setTimeout(function(){ document.getElementById('nm-year').focus(); }, 100);
+}
+
+/* ════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+════════════════════════════════════════════════════ */
+document.addEventListener('keydown', function(e) {
+  // Escape → close any open modal
+  if(e.key === 'Escape') {
+    ['modal-expense','modal-month'].forEach(function(id){ closeModal(id); });
+    return;
+  }
+  // Ignore shortcuts when typing in inputs
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+  // N → new expense (only on month view)
+  if(e.key === 'n' || e.key === 'N') {
+    if(activeView !== 'annual') { e.preventDefault(); openExpenseModal(activeView); }
+  }
+  // A → annual view
+  if(e.key === 'a' || e.key === 'A') { e.preventDefault(); setView('annual'); }
+  // / → focus search
+  if(e.key === '/') {
+    e.preventDefault();
+    var sb = document.getElementById('main-search');
+    if(sb) sb.focus();
+  }
+});
+
+// Close modal on backdrop click
+document.querySelectorAll('.modal-bg').forEach(function(bg) {
+  bg.addEventListener('click', function(e) {
+    if(e.target === bg) bg.classList.remove('open');
+  });
+});
+
+/* ════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════ */
+(async function init() {
+  setSyncStatus('loading');
+  await loadState();
+  renderSidebar();
+  renderMain();
+  setupRealtime();
+  setSyncStatus('online');
+})();
+</script>
+</body>
+</html>
