@@ -603,8 +603,7 @@ function showLoginScreen(correctHash) {
       const entered = await hashPassword(pwd);
       if (entered === correctHash) {
         localStorage.setItem('hh_auth_v2', correctHash);
-        document.body.innerHTML = '';
-        resolve();
+        location.reload();
       } else {
         document.getElementById('login-error').textContent = '❌ Incorrect password. Please try again.';
         document.getElementById('login-pwd').value = '';
@@ -614,7 +613,6 @@ function showLoginScreen(correctHash) {
     setTimeout(() => document.getElementById('login-pwd').focus(), 100);
   });
 }
-await checkAuth();
 /* ════════════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════════════ */
@@ -2285,6 +2283,7 @@ function addSwipeListeners() {
    INIT
 ════════════════════════════════════════════════════ */
 (async function init() {
+  await checkAuth(); // Add this line right here!
   setSyncStatus('loading');
   applyTheme();
   await loadState();
