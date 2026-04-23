@@ -578,6 +578,7 @@ async function checkAuth() {
 }
 function showLoginScreen(correctHash) {
   return new Promise((resolve) => {
+    const _savedAppHTML = document.body.innerHTML;
     document.body.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#1a1a14;font-family:'DM Sans',sans-serif;">
         <div style="background:#22221a;border:1px solid rgba(255,245,200,0.14);border-radius:18px;padding:40px 36px;width:340px;max-width:90vw;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
@@ -603,7 +604,7 @@ function showLoginScreen(correctHash) {
       const entered = await hashPassword(pwd);
       if (entered === correctHash) {
         localStorage.setItem('hh_auth_v2', correctHash);
-        document.body.innerHTML = '';
+        document.body.innerHTML = _savedAppHTML;
         resolve();
       } else {
         document.getElementById('login-error').textContent = '❌ Incorrect password. Please try again.';
