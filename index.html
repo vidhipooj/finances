@@ -128,7 +128,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 
 /* CHARTS ROW */
 .charts-row{display:grid;grid-template-columns:1fr 1fr 1.6fr;gap:12px;margin-bottom:18px;animation:fadeUp .5s ease .05s both;}
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;overflow:visible;}
 .chart-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 .chart-title::before{content:'';width:3px;height:11px;border-radius:2px;background:var(--accent);display:inline-block;}
 .legend{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;}
@@ -137,15 +137,19 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 
 /* EXPENSE TABLE */
 .table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;animation:fadeUp .5s ease .1s both;}
-.table-head{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1.2fr 0.9fr 1.2fr 60px;padding:10px 16px;border-bottom:1px solid var(--border);gap:7px;}
+.table-head{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1.2fr 0.9fr 1.2fr 1.2fr 60px;padding:10px 16px;border-bottom:1px solid var(--border);gap:7px;}
 .table-head span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
 .table-body{overflow-y:visible;}
-.table-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1.2fr 0.9fr 1.2fr 60px;padding:11px 16px;border-bottom:1px solid var(--border);gap:7px;align-items:center;transition:background .15s;animation:rowIn .3s ease both;}
+.table-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 1.2fr 0.9fr 1.2fr 1.2fr 60px;padding:11px 16px;border-bottom:1px solid var(--border);gap:7px;align-items:center;transition:background .15s;animation:rowIn .3s ease both;}
 .table-row:last-child{border-bottom:none;}
 .table-row:hover{background:var(--card2);}
 .row-desc{font-size:13px;font-weight:500;color:var(--cream2);}
 .row-amount{font-family:var(--num-font);font-size:14px;color:var(--cream);}
 .row-share{font-family:var(--num-font);font-size:14px;font-weight:600;color:var(--accent2);}
+.row-settle{font-family:var(--num-font);font-size:13px;font-weight:600;}
+.row-settle.pos{color:var(--teal);}
+.row-settle.neg{color:var(--rose);}
+.row-settle.zero{color:var(--muted);font-size:11px;}
 .row-date{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
 .row-cat{font-size:11px;color:var(--muted);}
 .row-actions{display:flex;gap:3px;align-items:center;}
@@ -170,8 +174,24 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .cat-bar-bg{height:4px;border-radius:2px;background:var(--bg3);min-width:60px;}
 .cat-bar-fill{height:4px;border-radius:2px;background:var(--teal);}
 
-/* SETTLE */
-.settle-banner{border-radius:var(--r2);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;animation:fadeUp .4s ease both;flex-wrap:wrap;gap:12px;}
+/* MONTH-END STATUS PANEL */
+.month-end-status{border-radius:var(--r2);padding:20px 28px;margin-top:20px;margin-bottom:8px;animation:fadeUp .4s ease both;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.month-end-status.mes-due{background:linear-gradient(135deg,rgba(196,112,106,.18) 0%,rgba(196,112,106,.06) 100%);border:1.5px solid rgba(196,112,106,.35);}
+.month-end-status.mes-settled{background:linear-gradient(135deg,rgba(90,184,154,.15) 0%,rgba(90,184,154,.05) 100%);border:1.5px solid rgba(90,184,154,.3);}
+.month-end-status.mes-carry{background:linear-gradient(135deg,rgba(212,168,83,.14) 0%,rgba(212,168,83,.04) 100%);border:1.5px solid rgba(212,168,83,.3);}
+.mes-left{display:flex;flex-direction:column;gap:4px;}
+.mes-tag{font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:2px;}
+.mes-tag.due{color:var(--rose);}
+.mes-tag.settled{color:var(--teal);}
+.mes-tag.carry{color:var(--accent);}
+.mes-headline{font-family:'Playfair Display',serif;font-size:17px;color:var(--cream);line-height:1.3;}
+.mes-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.mes-right{text-align:right;flex-shrink:0;}
+.mes-amount{font-family:var(--num-font);font-size:32px;font-weight:600;line-height:1;}
+.mes-amount.due{color:var(--rose);}
+.mes-amount.settled{color:var(--teal);}
+.mes-amount.carry{color:var(--accent2);}
+.mes-amount-label{font-size:11px;color:var(--muted);margin-top:4px;}.settle-banner{border-radius:var(--r2);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;animation:fadeUp .4s ease both;flex-wrap:wrap;gap:12px;}
 .settle-banner.owe-partner{background:linear-gradient(135deg,rgba(196,112,106,.15) 0%,rgba(196,112,106,.05) 100%);border:1px solid rgba(196,112,106,.25);}
 .settle-banner.owe-me{background:linear-gradient(135deg,rgba(90,184,154,.15) 0%,rgba(90,184,154,.05) 100%);border:1px solid rgba(90,184,154,.25);}
 .settle-banner.settled{background:linear-gradient(135deg,rgba(212,168,83,.1) 0%,transparent 100%);border:1px solid var(--border2);}
@@ -206,10 +226,47 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .carry-fwd-note strong{color:var(--accent2);}
 .breakdown-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);}
 .breakdown-row:last-child{border-bottom:none;font-weight:600;padding-top:8px;}
+.breakdown-row-sub{font-size:11px;opacity:0.75;padding-left:10px;}
 .breakdown-val{font-family:var(--num-font);font-size:13px;color:var(--cream);}
 
 /* ANNUAL MONTH CARDS */
 .annual-months-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:18px;animation:fadeUp .4s ease both;}
+
+/* CATEGORY MONTHLY TABLE */
+.cat-monthly-table-wrap{overflow-x:auto;margin-top:4px;}
+.cat-monthly-table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px;}
+.cat-monthly-table th{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+.cat-monthly-table th.left{text-align:left;}
+.cat-monthly-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--cream2);text-align:right;font-family:'Playfair Display',serif;font-size:12px;}
+.cat-monthly-table td.cat-name-cell{text-align:left;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--cream2);}
+.cat-monthly-table td.empty-cell{color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;}
+.cat-monthly-table td.total-col{border-left:1px solid var(--border2);font-weight:600;color:var(--cream);}
+.cat-monthly-table td.avg-col{color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;}
+.cat-monthly-table tr.total-row td{border-top:1px solid var(--border2);border-bottom:none;font-weight:600;color:var(--cream);}
+.cat-monthly-table tr.total-row td.cat-name-cell{font-family:'DM Sans',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:400;}
+.cat-monthly-table tr:last-child td{border-bottom:none;}
+.cat-monthly-table tr:hover td{background:var(--card2);}
+.cat-monthly-table tr.total-row:hover td{background:transparent;}
+.heat-0{background:transparent;}
+.heat-1{background:rgba(212,168,83,0.08);color:var(--accent) !important;}
+.heat-2{background:rgba(212,168,83,0.18);color:var(--accent2) !important;}
+.heat-3{background:rgba(212,168,83,0.35);color:#f0c060 !important;}
+
+/* TOP/BOTTOM MONTH CALLOUT */
+.spend-callouts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.spend-callout{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:14px;}
+.callout-icon{font-size:22px;flex-shrink:0;}
+.callout-body{}
+.callout-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;}
+.callout-month{font-family:'Playfair Display',serif;font-size:16px;color:var(--cream);line-height:1.1;}
+.callout-amount{font-size:12px;color:var(--muted);margin-top:2px;}
+.callout-amount span{font-family:'Playfair Display',serif;font-size:13px;}
+.callout-amount span.hi{color:var(--rose);}
+.callout-amount span.lo{color:var(--teal);}
+@media(max-width:768px){
+  .spend-callouts{grid-template-columns:1fr;}
+  .cat-monthly-table th,.cat-monthly-table td{padding:6px 8px;}
+}
 .annual-month-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;cursor:pointer;transition:transform .2s,border-color .2s;}
 .annual-month-card:hover{transform:translateY(-2px);border-color:var(--border2);}
 .amc-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--cream2);margin-bottom:10px;}
@@ -567,6 +624,8 @@ var nameMe = '', namePartner = '';
 var activeView = 'annual';
 var _expModalKey = null;
 var _editExpId = null; // null = new, otherwise editing
+var _editSettKey = null, _editSettId = null; // settlement edit state
+var _editAdvKey  = null, _editAdvId  = null; // advance edit state
 var _nextId = 1;
 var _charts = {};
 var _searchQuery = '';
@@ -1217,22 +1276,84 @@ function buildAnnualHTML() {
   var annNetDue = 0;
   if(sorted.length) annNetDue = computeFullMonth(sorted[sorted.length-1]).netDue;
 
-  var cats = {};
-  allExp.forEach(function(e){ cats[e.cat] = (cats[e.cat]||0) + e.amount; });
-  var catKeys = Object.keys(cats).sort(function(a,b){return cats[b]-cats[a];});
-  var maxCat = catKeys.length ? cats[catKeys[0]] : 1;
-  var catHTML = '';
-  if(catKeys.length) {
-    catHTML = '<table class="cat-table"><thead><tr><th>Category</th><th class="num">Total</th><th class="num">Share</th><th>Trend</th></tr></thead><tbody>';
-    catKeys.forEach(function(c) {
-      catHTML += '<tr><td>'+c+'</td><td class="num">'+fmt(cats[c])+'</td><td class="num">'+pct(cats[c],annTotal)+'%</td>';
-      catHTML += '<td><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:'+pct(cats[c],maxCat)+'%"></div></div></td></tr>';
+  var netValClass = annNetDue > 0.5 ? 'pos' : annNetDue < -0.5 ? 'neg' : '';
+  var netLabel = annNetDue > 0.5 ? np()+' owes you' : annNetDue < -0.5 ? 'You owe '+np() : 'All clear';
+
+  /* ── CATEGORY × MONTH TABLE ─────────────────────────────── */
+  // Collect all categories dynamically from all months
+  var allCats = [];
+  var catMonthSpend = {}; // catMonthSpend[cat][key] = amount
+  sorted.forEach(function(k) {
+    var exps = (monthData[k]||{expenses:[]}).expenses;
+    exps.forEach(function(e) {
+      if(!catMonthSpend[e.cat]) { catMonthSpend[e.cat] = {}; allCats.indexOf(e.cat)===-1 && allCats.push(e.cat); }
+      catMonthSpend[e.cat][k] = (catMonthSpend[e.cat][k]||0) + e.amount;
     });
-    catHTML += '</tbody></table>';
+  });
+  var totalMonths = sorted.length;
+  // Sort categories by annual total descending
+  allCats.sort(function(a,b){
+    var ta = sorted.reduce(function(s,k){return s+(catMonthSpend[a]&&catMonthSpend[a][k]||0);},0);
+    var tb = sorted.reduce(function(s,k){return s+(catMonthSpend[b]&&catMonthSpend[b][k]||0);},0);
+    return tb-ta;
+  });
+
+  var catTableHTML = '';
+  if(allCats.length && totalMonths > 0) {
+    // Find max spend per cell for heat shading
+    var allAmts = [];
+    allCats.forEach(function(c){ sorted.forEach(function(k){ var v=catMonthSpend[c]&&catMonthSpend[c][k]||0; if(v>0) allAmts.push(v); }); });
+    allAmts.sort(function(a,b){return a-b;});
+    var heatMax = allAmts.length ? allAmts[allAmts.length-1] : 1;
+    var heatMid = heatMax * 0.5;
+    var heatLo  = heatMax * 0.2;
+    function heatClass(v) { if(!v) return ''; if(v>=heatMid) return 'heat-3'; if(v>=heatLo) return 'heat-2'; return 'heat-1'; }
+
+    catTableHTML += '<table class="cat-monthly-table"><thead><tr><th class="left">Category</th>';
+    sorted.forEach(function(k){ catTableHTML += '<th>'+fmtKey(k)+'</th>'; });
+    catTableHTML += '<th style="border-left:1px solid var(--border2);">Annual total</th><th>Monthly avg</th></tr></thead><tbody>';
+
+    allCats.forEach(function(c) {
+      catTableHTML += '<tr><td class="cat-name-cell">'+c+'</td>';
+      sorted.forEach(function(k) {
+        var v = catMonthSpend[c]&&catMonthSpend[c][k]||0;
+        var hc = heatClass(v);
+        if(v) {
+          catTableHTML += '<td class="'+hc+'">'+fmt(v)+'</td>';
+        } else {
+          catTableHTML += '<td class="empty-cell">—</td>';
+        }
+      });
+      var catTotal = sorted.reduce(function(s,k){return s+(catMonthSpend[c]&&catMonthSpend[c][k]||0);},0);
+      var catAvg = totalMonths > 0 ? Math.round(catTotal/totalMonths) : 0;
+      catTableHTML += '<td class="total-col">'+fmt(catTotal)+'</td><td class="avg-col">'+fmt(catAvg)+'</td></tr>';
+    });
+
+    // Totals row
+    catTableHTML += '<tr class="total-row"><td class="cat-name-cell">Monthly total</td>';
+    sorted.forEach(function(k){
+      var colTotal = allCats.reduce(function(s,c){return s+(catMonthSpend[c]&&catMonthSpend[c][k]||0);},0);
+      catTableHTML += '<td>'+(colTotal?fmt(colTotal):'—')+'</td>';
+    });
+    catTableHTML += '<td class="total-col">'+fmt(annTotal)+'</td><td class="avg-col">'+fmt(totalMonths?Math.round(annTotal/totalMonths):0)+'</td></tr>';
+    catTableHTML += '</tbody></table>';
   } else {
-    catHTML = '<div class="empty-state" style="padding:20px"><div class="big">📊</div>No data yet</div>';
+    catTableHTML = '<div class="empty-state" style="padding:20px"><div class="big">📊</div>No data yet</div>';
   }
 
+  /* ── TOP / BOTTOM MONTH CALLOUTS ────────────────────────── */
+  var calloutsHTML = '';
+  if(sorted.length >= 2) {
+    var monthTotals = sorted.map(function(k){ return {key:k, total:(monthData[k]||{expenses:[]}).expenses.reduce(function(a,e){return a+e.amount;},0)}; });
+    monthTotals.sort(function(a,b){return b.total-a.total;});
+    var topM = monthTotals[0], botM = monthTotals[monthTotals.length-1];
+    calloutsHTML = '<div class="spend-callouts">'
+      + '<div class="spend-callout"><div class="callout-icon">📈</div><div class="callout-body"><div class="callout-label">Heaviest month</div><div class="callout-month">'+fmtKeyFull(topM.key)+'</div><div class="callout-amount"><span class="hi">'+fmt(topM.total)+'</span> total spend</div></div></div>'
+      + '<div class="spend-callout"><div class="callout-icon">📉</div><div class="callout-body"><div class="callout-label">Lightest month</div><div class="callout-month">'+fmtKeyFull(botM.key)+'</div><div class="callout-amount"><span class="lo">'+fmt(botM.total)+'</span> total spend</div></div></div>'
+      + '</div>';
+  }
+
+  /* ── MONTHLY SUMMARY CARDS ───────────────────────────────── */
   var monthCardsHTML = '';
   if(sorted.length) {
     sorted.forEach(function(key) {
@@ -1250,9 +1371,6 @@ function buildAnnualHTML() {
     monthCardsHTML = '<div class="empty-state"><div class="big">📅</div>Add a month to get started</div>';
   }
 
-  var netValClass = annNetDue > 0.5 ? 'pos' : annNetDue < -0.5 ? 'neg' : '';
-  var netLabel = annNetDue > 0.5 ? np()+' owes you' : annNetDue < -0.5 ? 'You owe '+np() : 'All clear';
-
   return '<div class="page-header"><div><h1 class="page-title">Annual <em>overview</em></h1><p class="page-subtitle">Across all tracked months</p></div>'
     + '<div class="header-actions"><button class="add-btn-main secondary" onclick="openMonthModal()">+ Add month</button></div></div>'
     + '<div class="page-content">'
@@ -1262,14 +1380,12 @@ function buildAnnualHTML() {
     + mc('c-teal',np()+' paid',fmt(annPartnerPaid),pct(annPartnerPaid,annTotal)+'% of total')
     + mc2('c-rose','Current net balance',fmt(Math.abs(annNetDue)),netLabel,netValClass)
     + '</div>'
-    + '<div class="charts-row">'
-    + '<div class="chart-card"><div class="chart-title">Paid by</div><div style="position:relative;height:160px;"><canvas id="ann-splitChart"></canvas></div><div class="legend" id="ann-split-legend"></div></div>'
-    + '<div class="chart-card"><div class="chart-title">Liability split</div><div style="position:relative;height:160px;"><canvas id="ann-shareChart"></canvas></div><div class="legend" id="ann-share-legend"></div></div>'
-    + '<div class="chart-card"><div class="chart-title">By category</div><div class="cat-table-wrap">'+catHTML+'</div></div>'
-    + '</div>'
+    + calloutsHTML
+    + '<div class="full-chart-card" style="margin-bottom:14px;"><div class="chart-title">Monthly spend</div><div style="position:relative;height:220px;"><canvas id="ann-monthChart"></canvas></div><div class="legend" id="ann-month-legend"></div></div>'
+    + '<div class="full-chart-card" style="margin-bottom:14px;"><div class="chart-title">Running balance — who owes whom over time</div><div style="position:relative;height:200px;"><canvas id="ann-balanceChart"></canvas></div><div class="legend" id="ann-balance-legend"></div></div>'
+    + '<div class="full-chart-card" style="margin-bottom:14px;"><div class="chart-title">Spend by category · month</div><div class="cat-monthly-table-wrap">'+catTableHTML+'</div></div>'
     + '<div class="section-hdr">Monthly summary</div>'
     + '<div class="annual-months-row">'+monthCardsHTML+'</div>'
-    + '<div class="full-chart-card"><div class="chart-title">Monthly spend by share</div><div style="position:relative;height:220px;"><canvas id="ann-monthChart"></canvas></div><div class="legend" id="ann-month-legend"></div></div>'
     + '</div>';
 }
 
@@ -1278,24 +1394,9 @@ function renderAnnualCharts() {
   var allExp = [];
   sorted.forEach(function(k){ allExp = allExp.concat((monthData[k]||{expenses:[]}).expenses); });
 
-  var mePaid = allExp.filter(function(e){return e.paidBy==='me';}).reduce(function(a,e){return a+e.amount;},0);
-  var partnerPaid = allExp.filter(function(e){return e.paidBy==='partner';}).reduce(function(a,e){return a+e.amount;},0);
-  var total = mePaid + partnerPaid;
-  var myShare = allExp.reduce(function(a,e){return a+calcShare(e);},0);
-  var partnerShare = total - myShare;
+  destroyChart('ann-split'); destroyChart('ann-share'); destroyChart('ann-month'); destroyChart('ann-balance');
 
-  destroyChart('ann-split'); destroyChart('ann-share'); destroyChart('ann-month');
-
-  var c1 = makeDoughnut('ann-splitChart',[nm(),np()],[Math.round(mePaid),Math.round(partnerPaid)],['#6090c0','#d4a853']);
-  if(c1) _charts['ann-split'] = c1;
-  var leg1 = document.getElementById('ann-split-legend');
-  if(leg1) leg1.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:#6090c0"></div>'+nm()+' '+pct(mePaid,total)+'%</div><div class="legend-item"><div class="legend-dot" style="background:#d4a853"></div>'+np()+' '+pct(partnerPaid,total)+'%</div>';
-
-  var c2 = makeDoughnut('ann-shareChart',[nm(),np()],[Math.round(myShare),Math.round(partnerShare)],['#6090c0','#d4a853']);
-  if(c2) _charts['ann-share'] = c2;
-  var leg2 = document.getElementById('ann-share-legend');
-  if(leg2) leg2.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:#6090c0"></div>'+nm()+' '+pct(myShare,total)+'%</div><div class="legend-item"><div class="legend-dot" style="background:#d4a853"></div>'+np()+' '+pct(partnerShare,total)+'%</div>';
-
+  /* ── MONTHLY SPEND BAR CHART ─────────────────────────────── */
   var mc3 = document.getElementById('ann-monthChart');
   if(mc3 && sorted.length) {
     var mMe = sorted.map(function(k){ var ex=(monthData[k]||{expenses:[]}).expenses; return Math.round(ex.reduce(function(a,e){return a+calcShare(e);},0)); });
@@ -1313,6 +1414,54 @@ function renderAnnualCharts() {
     var leg3 = document.getElementById('ann-month-legend');
     if(leg3) leg3.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:rgba(96,144,192,0.7)"></div>'+nm()+'\'s share</div><div class="legend-item"><div class="legend-dot" style="background:rgba(212,168,83,0.7)"></div>'+np()+'\'s share</div>';
   }
+
+  /* ── RUNNING BALANCE LINE CHART ──────────────────────────── */
+  var balCanvas = document.getElementById('ann-balanceChart');
+  if(balCanvas && sorted.length) {
+    // netDue > 0 = partner owes me; netDue < 0 = I owe partner
+    var balData = sorted.map(function(k){ return Math.round(computeFullMonth(k).netDue); });
+    var balColors = balData.map(function(v){ return v > 0 ? 'rgba(90,184,154,0.9)' : v < 0 ? 'rgba(196,112,106,0.9)' : 'rgba(212,168,83,0.7)'; });
+    _charts['ann-balance'] = new Chart(balCanvas, {
+      type: 'line',
+      data: {
+        labels: sorted.map(fmtKey),
+        datasets: [{
+          label: 'Net balance',
+          data: balData,
+          borderColor: 'rgba(212,168,83,0.8)',
+          backgroundColor: 'rgba(212,168,83,0.06)',
+          borderWidth: 2,
+          pointBackgroundColor: balColors,
+          pointBorderColor: balColors,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: function(c) {
+            var v = c.raw;
+            if(Math.abs(v) < 0.5) return ' Settled ✓';
+            return v > 0 ? ' '+np()+' owes '+fmt(v) : ' '+nm()+' owes '+fmt(Math.abs(v));
+          }}}
+        },
+        scales: {
+          x: { ticks:{color:'#888070',font:{size:11}}, grid:{display:false} },
+          y: {
+            ticks: { callback: function(v){ return '₹'+Math.round(v/1000)+'k'; }, color:'#888070', font:{size:10} },
+            grid: { color:'rgba(255,245,200,0.05)' },
+            afterDataLimits: function(axis){ var r=Math.max(Math.abs(axis.min),Math.abs(axis.max),500); axis.min=-r*1.2; axis.max=r*1.2; }
+          }
+        }
+      }
+    });
+    var balLeg = document.getElementById('ann-balance-legend');
+    if(balLeg) balLeg.innerHTML = '<div class="legend-item"><div class="legend-dot" style="background:rgba(90,184,154,0.9)"></div>'+np()+' owes</div><div class="legend-item"><div class="legend-dot" style="background:rgba(196,112,106,0.9)"></div>'+nm()+' owes</div><div class="legend-item" style="font-size:11px;color:var(--muted);">Point above zero line = '+np()+' owes · below = '+nm()+' owes</div>';
+  }
 }
 
 /* ════════════════════════════════════════════════════
@@ -1323,28 +1472,54 @@ function buildMonthHTML(key) {
   var fm = computeFullMonth(key);
   var n1 = nm(), n2 = np();
 
+  // Clamp for display only — overpayment shows as Settled, excess rolls into carry-forward
+  // Raw fm.netDue is untouched so computeCarryInto remains correct.
+  // Rule A: standard overpayment clamp — settlement exceeded what was owed, clamp to 0.
+  var displayNetDue = fm.netDue;
+  if (fm.grossDues >= 0) displayNetDue = Math.max(fm.netDue, 0);
+  else displayNetDue = Math.min(fm.netDue, 0);
+  // Rule B: carry-in absorption — if carryIn credit generates the apparent dues
+  //         (no expenses this month, or carryIn flipped direction vs baseDues),
+  //         it's surplus carry rolling forward, not a new settlement demand.
+  if (Math.abs(fm.carryIn) > 0.5) {
+    if (Math.abs(fm.baseDues) < 0.5) {
+      displayNetDue = 0; // zero expenses — any "due" is purely carry-in
+    } else if (Math.sign(fm.grossDues) !== Math.sign(fm.baseDues)) {
+      displayNetDue = 0; // carryIn flipped the direction — surplus carry
+    }
+  }
+
   // Banner
   var bCls, bHead, bSub, bAmt, quickBtn='';
-  if(fm.netDue > 0.5) {
+  // Detect "brought forward" state: carryIn credit absorbed/covered this month,
+  // displayNetDue was clamped to 0 via Rule B (carry-in absorption).
+  var bannerBroughtFwd = Math.abs(fm.carryIn) > 0.5 && Math.abs(displayNetDue) < 0.5
+                         && (Math.abs(fm.baseDues) < 0.5 || Math.sign(fm.grossDues) !== Math.sign(fm.baseDues));
+  if(displayNetDue > 0.5) {
     bCls='owe-me'; bHead=n2+' owes you'; bSub='After all adjustments, '+n2+' still needs to pay you.';
-    bAmt='<div class="settle-amount pos">'+fmt(fm.netDue)+'</div>';
-    quickBtn='<button class="quick-settle-btn" onclick="quickSettle(\''+key+'\',\'partner\','+fm.netDue+')">Mark as Settled ✓</button>';
-  } else if(fm.netDue < -0.5) {
+    bAmt='<div class="settle-amount pos">'+fmt(displayNetDue)+'</div>';
+    quickBtn='<button class="quick-settle-btn" onclick="quickSettle(\''+key+'\',\'partner\','+displayNetDue+')">Mark as Settled ✓</button>';
+  } else if(displayNetDue < -0.5) {
     bCls='owe-partner'; bHead='You owe '+n2; bSub='After all adjustments, you still need to pay.';
-    bAmt='<div class="settle-amount neg">'+fmt(-fm.netDue)+'</div>';
-    quickBtn='<button class="quick-settle-btn" onclick="quickSettle(\''+key+'\',\'me\','+(-fm.netDue)+')">Mark as Settled ✓</button>';
+    bAmt='<div class="settle-amount neg">'+fmt(-displayNetDue)+'</div>';
+    quickBtn='<button class="quick-settle-btn" onclick="quickSettle(\''+key+'\',\'me\','+(-displayNetDue)+')">Mark as Settled ✓</button>';
+  } else if(bannerBroughtFwd) {
+    var bfCredit = Math.abs(fm.carryIn);
+    bCls='settled'; bHead='Advance brought forward';
+    bSub='Prior credit of '+fmt(bfCredit)+' applied — no new settlement needed this month.';
+    bAmt='<div class="settle-amount" style="font-size:30px;color:var(--accent)">✓</div>';
   } else {
     bCls='settled'; bHead='All settled!'; bSub='No outstanding balance for this month.';
     bAmt='<div class="settle-amount" style="font-size:30px;color:var(--accent)">✓</div>';
   }
 
-  // Carry-forward note
+  // Advance carried forward note (combines explicit advances + prior overpayments)
   var carryNote = '';
   if(Math.abs(fm.carryIn) > 0.5) {
-    carryNote = '<div class="carry-fwd-note"><strong>Carry-forward applied:</strong> '
+    carryNote = '<div class="carry-fwd-note"><strong>Advance carried forward:</strong> '
       + (fm.carryIn > 0
-        ? n2+' had a net advance of <strong>'+fmt(fm.carryIn)+'</strong> from prior months — applied to reduce their dues.'
-        : 'You had a net advance of <strong>'+fmt(-fm.carryIn)+'</strong> from prior months — applied to reduce your dues.')
+        ? n2+' has a net credit of <strong>'+fmt(fm.carryIn)+'</strong> from prior months — applied to reduce their dues this month.'
+        : 'You have a net credit of <strong>'+fmt(-fm.carryIn)+'</strong> from prior months — applied to reduce your dues this month.')
       + '</div>';
   }
 
@@ -1358,8 +1533,25 @@ function buildMonthHTML(key) {
   // Expense table
   var tableBody = '';
   if(exps.length) {
+    var runningBase = 0;
+    var totalRows = exps.length;
     exps.forEach(function(e, i) {
       var myS = calcShare(e);
+      runningBase += (e.paidBy === 'me' ? e.amount : 0) - myS;
+      // Running balance: expenses minus carry-in and advances already paid this month
+      var runningSettle = runningBase - fm.carryIn - fm.netAdv;
+      var isLastRow = (i === totalRows - 1);
+      var isMonthSettled = Math.abs(displayNetDue) < 0.5;
+      var settleCls = Math.abs(runningSettle) < 0.5 ? 'zero' : runningSettle > 0 ? 'pos' : 'neg';
+      var settleLabel;
+      if (Math.abs(runningSettle) < 0.5) {
+        settleLabel = isLastRow && isMonthSettled ? 'Settled ✓' : '—';
+      } else {
+        var runStr = (runningSettle > 0 ? n2 + ' owes ' : 'You owe ') + fmt(Math.abs(runningSettle));
+        settleLabel = isLastRow && isMonthSettled
+          ? runStr + ' <span style="font-size:10px;opacity:0.6;">Settled ✓</span>'
+          : runStr;
+      }
       var splitLabel = e.split==='equal'?'50/50':e.split==='me'?'100% mine':e.split==='partner'?'100% theirs':(e.myShare+'%/'+(100-e.myShare)+'%');
       var pb = e.paidBy==='me'?('<span class="badge badge-me">'+n1+'</span>'):('<span class="badge badge-partner">'+n2+'</span>');
       tableBody += '<div class="table-row" data-key="'+key+'" data-id="'+e.id+'" style="animation-delay:'+i*0.02+'s">'
@@ -1371,6 +1563,7 @@ function buildMonthHTML(key) {
         + '<span class="row-cat">'+e.cat+'</span>'
         + '<span class="row-date">'+fmtDate(e.date)+'</span>'
         + '<span class="row-share">'+fmt(myS)+'</span>'
+        + '<span class="row-settle '+settleCls+'" title="Cumulative settlement due up to this entry">'+settleLabel+'</span>'
         + '<span class="row-actions">'
         + '<button class="edit-btn" onclick="openEditExpense(\''+key+'\','+e.id+')" title="Edit">✎</button>'
         + '<button class="del-btn" onclick="deleteExp(\''+key+'\','+e.id+')" title="Delete">✕</button>'
@@ -1383,30 +1576,125 @@ function buildMonthHTML(key) {
   }
 
   // Lists
-  function payList(items, delFn) {
+  function payList(items, delFn, editFn) {
     if(!items.length) return '<div style="font-size:12px;color:var(--muted);padding:8px 0;">No records yet</div>';
     return items.map(function(p){
       return '<div class="payment-row">'
         + '<span class="payment-desc"><span class="badge '+(p.paidBy==='me'?'badge-me':'badge-partner')+'">'+(p.paidBy==='me'?n1:n2)+'</span>'+(p.note?' — '+escHtml(p.note):'')+'</span>'
         + '<span class="payment-right"><span class="payment-amt">'+fmt(p.amount)+'</span><span class="payment-meta">'+fmtDate(p.date)+'</span>'
+        + '<button class="edit-btn" onclick="'+editFn+'(\''+key+'\','+p.id+')" title="Edit">✎</button>'
         + '<button class="del-btn" onclick="'+delFn+'(\''+key+'\','+p.id+')" title="Remove">✕</button></span></div>';
     }).join('');
   }
 
-  // Breakdown
-  function bRow(lbl, val, valCls) {
-    return '<div class="breakdown-row"><span>'+lbl+'</span><span class="breakdown-val '+(valCls||'')+'">'+val+'</span></div>';
+  // Breakdown — narrative style
+  function bRow(lbl, val, valCls, dimmed) {
+    return '<div class="breakdown-row'+(dimmed?' breakdown-row-sub':'')+'"><span>'+lbl+'</span><span class="breakdown-val '+(valCls||'')+'">'+val+'</span></div>';
   }
-  var breakdown = bRow('Base dues (from expenses)', fm.baseDues>=0?fmt(fm.baseDues)+' ('+n2+' owes)':fmt(-fm.baseDues)+' (you owe)');
-  if(Math.abs(fm.carryIn)>0.5) breakdown += bRow('Carry-forward from prior months', fm.carryIn>=0?'− '+fmt(fm.carryIn):'+ '+fmt(-fm.carryIn));
-  breakdown += bRow('Gross due this month', fm.grossDues>=0?fmt(fm.grossDues)+' ('+n2+' owes)':fmt(-fm.grossDues)+' (you owe)');
-  if(Math.abs(fm.netAdv)>0.5) breakdown += bRow('Advance payments (this month)', fm.netAdv>=0?'− '+fmt(fm.netAdv):'+ '+fmt(-fm.netAdv));
-  if(Math.abs(fm.netSett)>0.5) breakdown += bRow('Settlement paid (this month)', fm.netSett>=0?'− '+fmt(fm.netSett):'+ '+fmt(-fm.netSett));
-  var remVal = Math.abs(fm.netDue)<0.5?'Settled ✓':fmt(Math.abs(fm.netDue));
-  var remCls = fm.netDue>0.5?'pos':fm.netDue<-0.5?'neg':'';
-  breakdown += '<div class="breakdown-row"><span style="color:var(--cream2);">Net remaining</span><span class="breakdown-val '+remCls+'" style="font-size:15px;">'+remVal+'</span></div>';
+  function bDivider() {
+    return '<div style="border-top:1px solid var(--border2);margin:6px 0;"></div>';
+  }
 
-  var netValClass = fm.netDue > 0.5 ? 'pos' : fm.netDue < -0.5 ? 'neg' : '';
+  // Step 1: base dues from expenses alone
+  var breakdown = bRow(
+    'Base dues (from expenses)',
+    fm.baseDues >= 0 ? fmt(fm.baseDues) + ' (' + n2 + ' owes you)' : fmt(-fm.baseDues) + ' (you owe ' + n2 + ')'
+  );
+
+  // Step 2: carry-in from prior months (if any)
+  if (Math.abs(fm.carryIn) > 0.5) {
+    breakdown += bRow(
+      'Carry-forward from prior months',
+      fm.carryIn >= 0 ? '− ' + fmt(fm.carryIn) + ' (' + n2 + '\'s credit)' : '+ ' + fmt(-fm.carryIn) + ' (your credit)',
+      '', true
+    );
+    // When carryIn flips the sign vs baseDues, label it as "credit surplus" not a new liability
+    var grossLabel;
+    if (Math.abs(fm.grossDues) < 0.5) {
+      grossLabel = 'Credit fully absorbed ✓';
+    } else if (Math.sign(fm.grossDues) !== Math.sign(fm.baseDues) || Math.abs(fm.baseDues) < 0.5) {
+      // grossDues direction is driven by carryIn, not actual expenses
+      grossLabel = fmt(Math.abs(fm.grossDues)) + ' (prior credit surplus — carries forward)';
+    } else if (fm.grossDues > 0) {
+      grossLabel = fmt(fm.grossDues) + ' (' + n2 + ' owes you)';
+    } else {
+      grossLabel = fmt(-fm.grossDues) + ' (you owe ' + n2 + ')';
+    }
+    breakdown += bRow('Gross due this month', grossLabel);
+  }
+
+  // Step 3: advances paid this month — these ADD to the liability of the recipient
+  // e.g. if partner paid advance, you owe them more → increases your liability
+  if (Math.abs(fm.netAdv) > 0.5) {
+    // advP = advance paid by partner (Shail), advM = advance paid by me (Vidhi)
+    // Each advance paid by partner adds to what you owe them
+    // Each advance paid by me adds to what they owe me
+    m.advancePaid.forEach(function(p) {
+      var paidByPartner = p.paidBy === 'partner';
+      breakdown += bRow(
+        'Advance paid by ' + (paidByPartner ? n2 : n1) + (p.note ? ' (' + escHtml(p.note) + ')' : ''),
+        paidByPartner ? '+ ' + fmt(p.amount) + ' (added to your liability)' : '− ' + fmt(p.amount) + ' (reduces ' + n2 + '\'s liability)',
+        '', true
+      );
+    });
+  }
+
+  // Step 4: total owed (the number that matches the last row of the expense table)
+  var totalOwed = fm.grossDues - fm.netAdv; // what you owe before any settlement
+  breakdown += bDivider();
+  // If grossDues direction is purely carry-in (not actual expenses), label accordingly
+  var totalOwedIsPureCarry = Math.abs(fm.carryIn) > 0.5
+    && (Math.abs(fm.baseDues) < 0.5 || Math.sign(fm.grossDues) !== Math.sign(fm.baseDues));
+  var totalOwedLabel;
+  if (Math.abs(totalOwed) < 0.5) {
+    totalOwedLabel = 'Settled ✓';
+  } else if (totalOwedIsPureCarry) {
+    totalOwedLabel = fmt(Math.abs(totalOwed)) + ' (prior credit — carries forward)';
+  } else {
+    totalOwedLabel = totalOwed >= 0 ? fmt(totalOwed) + ' (' + n2 + ' owes you)' : fmt(-totalOwed) + ' (you owe ' + n2 + ')';
+  }
+  breakdown += bRow(
+    'Total you owed ' + n2 + ' (matches last table row)',
+    totalOwedLabel,
+    Math.abs(totalOwed) < 0.5 ? '' : totalOwed >= 0 ? 'pos' : 'neg'
+  );
+
+  // Step 5: settlement payments
+  if (Math.abs(fm.netSett) > 0.5) {
+    m.settlementPaid.forEach(function(p) {
+      var paidByMe = p.paidBy === 'me';
+      breakdown += bRow(
+        'Settlement paid by ' + (paidByMe ? n1 : n2) + (p.note ? ' — ' + escHtml(p.note) : ''),
+        paidByMe ? '− ' + fmt(p.amount) : '+ ' + fmt(p.amount),
+        '', true
+      );
+    });
+  }
+
+  // Step 6: overpayment carry-forward (if any)
+  var overpay = -(fm.netDue); // positive = you overpaid, negative = partner overpaid
+  if (fm.grossDues < 0) overpay = fm.netDue; // if you owed, flip
+  var hasOverpay = Math.abs(fm.netDue) > 0.5 && Math.sign(fm.netDue) !== Math.sign(fm.grossDues - fm.netAdv) && Math.abs(fm.grossDues - fm.netAdv) > 0.5;
+  if (hasOverpay) {
+    var overAmt = Math.abs(fm.netDue);
+    var totalOwedBeforeSett = fm.grossDues - fm.netAdv;
+    // If you owed (totalOwed < 0) and netDue flipped positive → Vidhi (n1) overpaid
+    // If partner owed (totalOwed > 0) and netDue flipped negative → Vidhi (n1) overpaid
+    var overHolder = (totalOwedBeforeSett < 0) ? (fm.netDue > 0 ? n1 : n2) : (fm.netDue < 0 ? n1 : n2);
+    breakdown += bRow(
+      overHolder + ' overpaid — carries forward to next month',
+      fmt(overAmt) + ' →',
+      'pos', true
+    );
+  }
+
+  // Step 7: net remaining
+  breakdown += bDivider();
+  var remVal = Math.abs(displayNetDue) < 0.5 ? 'Settled ✓' : fmt(Math.abs(displayNetDue));
+  var remCls = displayNetDue > 0.5 ? 'pos' : displayNetDue < -0.5 ? 'neg' : 'pos';
+  breakdown += '<div class="breakdown-row"><span style="color:var(--cream2);font-weight:600;">Net remaining</span><span class="breakdown-val ' + remCls + '" style="font-size:15px;">' + remVal + '</span></div>';
+
+  var netValClass = displayNetDue > 0.5 ? 'pos' : displayNetDue < -0.5 ? 'neg' : '';
 
   return '<div class="page-header">'
     + '<div><h1 class="page-title">'+MONTH_NAMES[keyMonth(key)]+' <em>'+keyYear(key)+'</em></h1><p class="page-subtitle">Monthly expense sheet</p></div>'
@@ -1424,17 +1712,35 @@ function buildMonthHTML(key) {
     + mc('c-gold','Total expenses',fmt(fm.total),m.expenses.length+' transactions')
     + mc('c-blue',n1+' paid',fmt(fm.mePaid),'Share: '+fmt(fm.myShare))
     + mc('c-teal',n2+' paid',fmt(fm.partnerPaid),'Share: '+fmt(fm.partnerShare))
-    + mc2('c-rose','Net settlement due',Math.abs(fm.netDue)<0.5?'Settled':fmt(Math.abs(fm.netDue)), fm.netDue>0.5?n2+' owes you':fm.netDue<-0.5?'You owe '+n2:'All clear!', netValClass)
+    + mc2('c-rose','Net settlement due',
+        fmt(Math.abs(fm.grossDues)),
+        Math.abs(displayNetDue)<0.5
+          ? '✓ Settled · was '+(fm.grossDues>0.5?n2+' owes':fm.grossDues<-0.5?'you owed':'zero')
+          : displayNetDue>0.5?n2+' owes you':'You owe '+n2,
+        Math.abs(displayNetDue)<0.5?'pos':netValClass)
     + '</div>'
+
+    + '<div class="settle-section" style="margin-bottom:14px;"><div class="settle-section-title">Advance payments <span style="font-weight:400;font-size:10px;color:var(--muted);text-transform:none;">(carries forward to next month)</span></div>'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Any advance recorded here will automatically carry forward and reduce next month\'s settlement dues.'
+    + (Math.abs(fm.carryIn)>0.5?'<br><strong style="color:var(--accent2);">'+fmt(Math.abs(fm.carryIn))+'</strong> advance carried forward from prior months is already applied above.':'')
+    + '</div>'
+    + '<div class="settle-input-row">'
+    + '<div><div class="s-label">Paid by</div><select class="s-input" id="ap-paidby"><option value="me">'+n1+'</option><option value="partner">'+n2+'</option></select></div>'
+    + '<div><div class="s-label">Amount (₹)</div><input class="s-input num-input" id="ap-amount" type="number" min="0" placeholder="0" step="0.01"></div>'
+    + '<div><div class="s-label">Date</div><input class="s-input" id="ap-date" type="date" value="'+today()+'"></div>'
+    + '</div>'
+    + '<div><div class="s-label">Note (optional)</div><input class="s-input s-full" id="ap-note" placeholder="e.g. Paid ahead for next month"></div>'
+    + '<button class="save-btn" id="ap-save-btn" onclick="saveAdvance(\''+key+'\')">Save advance</button>'
+    + '<div class="payment-list">'+payList(m.advancePaid,'delAdvance','openEditAdvance')+'</div></div>'
 
     + '<div class="charts-row">'
     + '<div class="chart-card"><div class="chart-title">Paid by</div><div style="position:relative;height:160px;"><canvas id="m-splitChart"></canvas></div><div class="legend" id="m-split-legend"></div></div>'
     + '<div class="chart-card"><div class="chart-title">Liability split</div><div style="position:relative;height:160px;"><canvas id="m-shareChart"></canvas></div><div class="legend" id="m-share-legend"></div></div>'
-    + '<div class="chart-card"><div class="chart-title">By category</div><div style="position:relative;height:170px;"><canvas id="m-catChart"></canvas></div></div>'
+    + '<div class="chart-card" style="overflow:visible;padding-right:28px;"><div class="chart-title">By category</div><div style="position:relative;height:170px;overflow:visible;"><canvas id="m-catChart" style="overflow:visible;"></canvas></div></div>'
     + '</div>'
 
     + '<div class="table-card" style="margin-bottom:16px;">'
-    + '<div class="table-head"><span>Description</span><span>Amount</span><span>Paid by</span><span>Split</span><span>Category</span><span>Date</span><span>Your share</span><span></span></div>'
+    + '<div class="table-head"><span>Description</span><span>Amount</span><span>Paid by</span><span>Split</span><span>Category</span><span>Date</span><span>Your share</span><span>Settlement Due</span><span></span></div>'
     + '<div class="table-body">'+tableBody+'</div></div>'
 
     + '<div class="settle-banner '+bCls+'">'
@@ -1453,23 +1759,115 @@ function buildMonthHTML(key) {
     + '<div><div class="s-label">Date</div><input class="s-input" id="sp-date" type="date" value="'+today()+'"></div>'
     + '</div>'
     + '<div><div class="s-label">Note (optional)</div><input class="s-input s-full" id="sp-note" placeholder="e.g. UPI transfer"></div>'
-    + '<button class="save-btn" onclick="saveSettlement(\''+key+'\')">Save payment</button>'
-    + '<div class="payment-list">'+payList(m.settlementPaid,'delSettlement')+'</div></div>'
-    + '</div>'
+    + '<button class="save-btn" id="sp-save-btn" onclick="saveSettlement(\''+key+'\')">Save payment</button>'
+    + '<div class="payment-list">'+payList(m.settlementPaid,'delSettlement','openEditSettlement')+'</div></div>'
 
-    + '<div class="settle-section"><div class="settle-section-title">Advance payments <span style="font-weight:400;font-size:10px;color:var(--muted);text-transform:none;">(carries forward to next month)</span></div>'
-    + '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Any advance recorded here will automatically carry forward and reduce next month\'s settlement dues.'
-    + (Math.abs(fm.carryIn)>0.5?'<br><strong style="color:var(--accent2);">'+fmt(Math.abs(fm.carryIn))+'</strong> carry-forward from prior months is already applied above.':'')
     + '</div>'
-    + '<div class="settle-input-row">'
-    + '<div><div class="s-label">Paid by</div><select class="s-input" id="ap-paidby"><option value="me">'+n1+'</option><option value="partner">'+n2+'</option></select></div>'
-    + '<div><div class="s-label">Amount (₹)</div><input class="s-input num-input" id="ap-amount" type="number" min="0" placeholder="0" step="0.01"></div>'
-    + '<div><div class="s-label">Date</div><input class="s-input" id="ap-date" type="date" value="'+today()+'"></div>'
-    + '</div>'
-    + '<div><div class="s-label">Note (optional)</div><input class="s-input s-full" id="ap-note" placeholder="e.g. Paid ahead for next month"></div>'
-    + '<button class="save-btn" onclick="saveAdvance(\''+key+'\')">Save advance</button>'
-    + '<div class="payment-list">'+payList(m.advancePaid,'delAdvance')+'</div></div>'
+    + buildMonthEndStatus(key, fm, displayNetDue, n1, n2)
     + '</div>';
+}
+
+function buildMonthEndStatus(key, fm, displayNetDue, n1, n2) {
+  // Amount by which payment exceeded the actual dues (only non-zero on overpayment)
+  var overpayment = Math.abs(fm.netDue - displayNetDue);
+  var hasOverpay = overpayment > 0.5;
+
+  // Find the next month in the sequence for labelling carry-forward
+  var sorted = monthOrder.slice().sort();
+  var idx = sorted.indexOf(key);
+  var nextKey = (idx !== -1 && idx < sorted.length - 1) ? sorted[idx + 1] : null;
+  var nextLabel = nextKey ? fmtKeyFull(nextKey) : 'next month';
+
+  // Who holds the carry-forward credit (whoever overpaid)
+  var creditHolder = (fm.baseDues >= 0) ? n2 : n1;
+
+  // Detect "brought forward" state: carryIn credit zeroed out this month's dues
+  // (no actual settlement payment needed — the credit does the work)
+  var hasBroughtForward = Math.abs(fm.carryIn) > 0.5 && Math.abs(displayNetDue) < 0.5
+    && (Math.abs(fm.baseDues) < 0.5 || Math.sign(fm.grossDues) !== Math.sign(fm.baseDues));
+  // Remaining carry-in credit after absorbing this month's baseDues
+  var remainingCarry = Math.abs(fm.netDue); // raw netDue still holds the true surplus
+
+  var panelHtml;
+
+  if (displayNetDue > 0.5) {
+    // ── State 1: Settlement still due (partner owes me) ────
+    panelHtml = '<div class="month-end-status mes-due">'
+      + '<div class="mes-left">'
+      + '<div class="mes-tag due">● Settlement Due</div>'
+      + '<div class="mes-headline">'+n2+' owes '+n1+'</div>'
+      + '<div class="mes-sub">Outstanding balance to be paid this month</div>'
+      + '</div>'
+      + '<div class="mes-right">'
+      + '<div class="mes-amount due">'+fmt(displayNetDue)+'</div>'
+      + '<div class="mes-amount-label">amount due</div>'
+      + '</div>'
+      + '</div>';
+
+  } else if (displayNetDue < -0.5) {
+    // ── State 1b: You owe partner ──────────────────────────
+    panelHtml = '<div class="month-end-status mes-due">'
+      + '<div class="mes-left">'
+      + '<div class="mes-tag due">● Settlement Due</div>'
+      + '<div class="mes-headline">'+n1+' owes '+n2+'</div>'
+      + '<div class="mes-sub">Outstanding balance to be paid this month</div>'
+      + '</div>'
+      + '<div class="mes-right">'
+      + '<div class="mes-amount due">'+fmt(-displayNetDue)+'</div>'
+      + '<div class="mes-amount-label">amount due</div>'
+      + '</div>'
+      + '</div>';
+
+  } else if (hasBroughtForward) {
+    // ── State 2b: Advance brought forward covered this month ─
+    // Determine who holds the remaining credit after absorbing this month
+    var bfCreditHolder = (fm.carryIn > 0) ? n2 : n1;
+    var bfRemaining = Math.abs(fm.netDue); // surplus credit still in play
+    var bfMsg = bfRemaining > 0.5
+      ? 'Credit of ' + fmt(bfRemaining) + ' carries forward to ' + nextLabel
+      : 'Credit fully absorbed by this month\'s expenses';
+    panelHtml = '<div class="month-end-status mes-carry">'
+      + '<div class="mes-left">'
+      + '<div class="mes-tag carry">✓ Advance Brought Forward</div>'
+      + '<div class="mes-headline">Prior credit covers this month</div>'
+      + '<div class="mes-sub">'+bfMsg+'</div>'
+      + '</div>'
+      + '<div class="mes-right">'
+      + (bfRemaining > 0.5
+          ? '<div class="mes-amount carry">'+fmt(bfRemaining)+'</div><div class="mes-amount-label">carried forward →</div>'
+          : '<div class="mes-amount settled" style="font-size:36px;">✓</div>')
+      + '</div>'
+      + '</div>';
+
+  } else if (!hasOverpay) {
+    // ── State 2: Cleanly settled, no excess ────────────────
+    panelHtml = '<div class="month-end-status mes-settled">'
+      + '<div class="mes-left">'
+      + '<div class="mes-tag settled">✓ Settled</div>'
+      + '<div class="mes-headline">All clear for '+fmtKeyFull(key)+'</div>'
+      + '<div class="mes-sub">No outstanding balance — nothing carries forward</div>'
+      + '</div>'
+      + '<div class="mes-right">'
+      + '<div class="mes-amount settled" style="font-size:36px;">✓</div>'
+      + '</div>'
+      + '</div>';
+
+  } else {
+    // ── State 3: Settled via overpayment, excess carries forward
+    panelHtml = '<div class="month-end-status mes-carry">'
+      + '<div class="mes-left">'
+      + '<div class="mes-tag carry">✓ Settled — Advance Carried Forward</div>'
+      + '<div class="mes-headline">'+creditHolder+' has a credit of '+fmt(overpayment)+'</div>'
+      + '<div class="mes-sub">Overpayment will reduce '+creditHolder+'\'s dues in '+nextLabel+'</div>'
+      + '</div>'
+      + '<div class="mes-right">'
+      + '<div class="mes-amount carry">'+fmt(overpayment)+'</div>'
+      + '<div class="mes-amount-label">carried forward →</div>'
+      + '</div>'
+      + '</div>';
+  }
+
+  return panelHtml;
 }
 
 function renderMonthCharts(key) {
@@ -1499,8 +1897,9 @@ function renderMonthCharts(key) {
       type:'bar',
       data:{labels:catKeys,datasets:[{data:catKeys.map(function(k){return Math.round(cats[k]);}),backgroundColor:'rgba(90,184,154,0.5)',borderColor:'rgba(90,184,154,0.8)',borderWidth:1,borderRadius:4}]},
       options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{x:{ticks:{callback:function(v){return '₹'+Math.round(v/1000)+'k';},color:'#888070',font:{size:10}},grid:{color:'rgba(255,245,200,0.05)'}},
-                y:{ticks:{color:'#b0a888',font:{size:10}},grid:{display:false}}}}
+        layout:{padding:{right:32,left:4,top:4,bottom:4}},
+        scales:{x:{ticks:{callback:function(v){return '₹'+Math.round(v/1000)+'k';},color:'#888070',font:{size:10},maxRotation:0,maxTicksLimit:5},grid:{color:'rgba(255,245,200,0.05)'},border:{display:false}},
+                y:{ticks:{color:'#b0a888',font:{size:10}},grid:{display:false},border:{display:false}}}}
     });
   }
 }
@@ -1514,6 +1913,7 @@ function onSearch(val) {
   var key = activeView;
   if(key === 'annual') return;
   var m = getMonth(key);
+  var fm = computeFullMonth(key);
   var n1=nm(),n2=np();
   var exps = m.expenses.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
   if(_searchQuery) {
@@ -1522,8 +1922,24 @@ function onSearch(val) {
   }
   var tableBody = '';
   if(exps.length) {
+    var runningBase = 0;
+    var totalRows = exps.length;
     exps.forEach(function(e,i){
       var myS=calcShare(e);
+      runningBase += (e.paidBy === 'me' ? e.amount : 0) - myS;
+      var runningSettle = runningBase - fm.carryIn - fm.netAdv;
+      var isLastRow = (i === totalRows - 1);
+      var isMonthSettled = Math.abs(fm.netDue) < 0.5;
+      var settleCls = Math.abs(runningSettle) < 0.5 ? 'zero' : runningSettle > 0 ? 'pos' : 'neg';
+      var settleLabel;
+      if (Math.abs(runningSettle) < 0.5) {
+        settleLabel = isLastRow && isMonthSettled ? 'Settled ✓' : '—';
+      } else {
+        var runStr = (runningSettle > 0 ? n2 + ' owes ' : 'You owe ') + fmt(Math.abs(runningSettle));
+        settleLabel = isLastRow && isMonthSettled
+          ? runStr + ' <span style="font-size:10px;opacity:0.6;">Settled ✓</span>'
+          : runStr;
+      }
       var splitLabel=e.split==='equal'?'50/50':e.split==='me'?'100% mine':e.split==='partner'?'100% theirs':(e.myShare+'%/'+(100-e.myShare)+'%');
       var pb=e.paidBy==='me'?('<span class="badge badge-me">'+n1+'</span>'):('<span class="badge badge-partner">'+n2+'</span>');
       tableBody+='<div class="table-row" style="animation-delay:'+i*0.02+'s">'
@@ -1534,6 +1950,7 @@ function onSearch(val) {
         +'<span class="row-cat">'+e.cat+'</span>'
         +'<span class="row-date">'+fmtDate(e.date)+'</span>'
         +'<span class="row-share">'+fmt(myS)+'</span>'
+        +'<span class="row-settle '+settleCls+'" title="Cumulative settlement due up to this entry">'+settleLabel+'</span>'
         +'<span class="row-actions">'
         +'<button class="edit-btn" onclick="openEditExpense(\''+key+'\','+e.id+')" title="Edit">✎</button>'
         +'<button class="del-btn" onclick="deleteExp(\''+key+'\','+e.id+')" title="Delete">✕</button>'
@@ -1650,33 +2067,83 @@ function quickSettle(key, paidBy, amount) {
 function saveSettlement(key) {
   var amount = parseFloat(document.getElementById('sp-amount').value);
   if(!amount || amount <= 0) { toast('⚠ Please enter a valid amount', 'error'); return; }
-  getMonth(key).settlementPaid.push({
-    id:uid(), paidBy:document.getElementById('sp-paidby').value,
-    amount:amount, date:document.getElementById('sp-date').value,
-    note:document.getElementById('sp-note').value.trim()
-  });
+  var entry = {
+    id: _editSettId !== null ? _editSettId : uid(),
+    paidBy: document.getElementById('sp-paidby').value,
+    amount: amount,
+    date: document.getElementById('sp-date').value,
+    note: document.getElementById('sp-note').value.trim()
+  };
+  var m = getMonth(key);
+  if(_editSettId !== null) {
+    m.settlementPaid = m.settlementPaid.map(function(p){ return p.id === _editSettId ? entry : p; });
+    _editSettKey = null; _editSettId = null;
+    toast('✎ Settlement updated', 'success');
+  } else {
+    m.settlementPaid.push(entry);
+    toast('✓ Settlement recorded', 'success');
+  }
   document.getElementById('sp-amount').value = '';
   document.getElementById('sp-note').value = '';
   saveState();
   renderSidebar();
   renderMain();
-  toast('✓ Settlement recorded', 'success');
+}
+
+function openEditSettlement(key, id) {
+  var m = getMonth(key);
+  var p = m.settlementPaid.find(function(x){ return x.id === id; });
+  if(!p) return;
+  _editSettKey = key; _editSettId = id;
+  document.getElementById('sp-paidby').value = p.paidBy;
+  document.getElementById('sp-amount').value = p.amount;
+  document.getElementById('sp-date').value = p.date;
+  document.getElementById('sp-note').value = p.note || '';
+  var btn = document.getElementById('sp-save-btn');
+  if(btn) { btn.textContent = 'Update payment'; btn.style.background = 'var(--blue)'; }
+  var el = document.getElementById('sp-amount');
+  if(el) { el.scrollIntoView({behavior:'smooth', block:'center'}); el.focus(); }
 }
 
 function saveAdvance(key) {
   var amount = parseFloat(document.getElementById('ap-amount').value);
   if(!amount || amount <= 0) { toast('⚠ Please enter a valid amount', 'error'); return; }
-  getMonth(key).advancePaid.push({
-    id:uid(), paidBy:document.getElementById('ap-paidby').value,
-    amount:amount, date:document.getElementById('ap-date').value,
-    note:document.getElementById('ap-note').value.trim()
-  });
+  var entry = {
+    id: _editAdvId !== null ? _editAdvId : uid(),
+    paidBy: document.getElementById('ap-paidby').value,
+    amount: amount,
+    date: document.getElementById('ap-date').value,
+    note: document.getElementById('ap-note').value.trim()
+  };
+  var m = getMonth(key);
+  if(_editAdvId !== null) {
+    m.advancePaid = m.advancePaid.map(function(p){ return p.id === _editAdvId ? entry : p; });
+    _editAdvKey = null; _editAdvId = null;
+    toast('✎ Advance updated', 'success');
+  } else {
+    m.advancePaid.push(entry);
+    toast('✓ Advance recorded', 'success');
+  }
   document.getElementById('ap-amount').value = '';
   document.getElementById('ap-note').value = '';
   saveState();
   renderSidebar();
   renderMain();
-  toast('✓ Advance recorded', 'success');
+}
+
+function openEditAdvance(key, id) {
+  var m = getMonth(key);
+  var p = m.advancePaid.find(function(x){ return x.id === id; });
+  if(!p) return;
+  _editAdvKey = key; _editAdvId = id;
+  document.getElementById('ap-paidby').value = p.paidBy;
+  document.getElementById('ap-amount').value = p.amount;
+  document.getElementById('ap-date').value = p.date;
+  document.getElementById('ap-note').value = p.note || '';
+  var btn = document.getElementById('ap-save-btn');
+  if(btn) { btn.textContent = 'Update advance'; btn.style.background = 'var(--blue)'; }
+  var el = document.getElementById('ap-amount');
+  if(el) { el.scrollIntoView({behavior:'smooth', block:'center'}); el.focus(); }
 }
 
 function delSettlement(key, id) {
@@ -1758,6 +2225,8 @@ window.saveSettlement = saveSettlement;
 window.saveAdvance = saveAdvance;
 window.delSettlement = delSettlement;
 window.delAdvance = delAdvance;
+window.openEditSettlement = openEditSettlement;
+window.openEditAdvance = openEditAdvance;
 window.quickSettle = quickSettle;
 window.exportData = exportData;
 window.toggleMobSidebar = toggleMobSidebar;
