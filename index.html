@@ -2282,8 +2282,8 @@ function addSwipeListeners() {
 /* ════════════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════════════ */
+await checkAuth();
 (async function init() {
-  await checkAuth(); // Add this line right here!
   setSyncStatus('loading');
   applyTheme();
   await loadState();
