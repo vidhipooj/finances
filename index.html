@@ -578,7 +578,6 @@ async function checkAuth() {
 }
 function showLoginScreen(correctHash) {
   return new Promise((resolve) => {
-    const _savedAppHTML = document.body.innerHTML;
     document.body.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#1a1a14;font-family:'DM Sans',sans-serif;">
         <div style="background:#22221a;border:1px solid rgba(255,245,200,0.14);border-radius:18px;padding:40px 36px;width:340px;max-width:90vw;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
@@ -604,7 +603,7 @@ function showLoginScreen(correctHash) {
       const entered = await hashPassword(pwd);
       if (entered === correctHash) {
         localStorage.setItem('hh_auth_v2', correctHash);
-        document.body.innerHTML = _savedAppHTML;
+        document.body.innerHTML = '';
         resolve();
       } else {
         document.getElementById('login-error').textContent = '❌ Incorrect password. Please try again.';
@@ -2230,20 +2229,14 @@ window.openEditSettlement = openEditSettlement;
 window.openEditAdvance = openEditAdvance;
 window.quickSettle = quickSettle;
 window.exportData = exportData;
-window.toggleMobSidebar = toggleMobSidebar;
-window.closeMobSidebar = closeMobSidebar;
-window.toggleTheme = toggleTheme;
-window.logOut = logOut;
+// toggleMobSidebar, closeMobSidebar, toggleTheme, logOut are defined
+// in the inline <script> above and are already global — no re-assignment needed.
 
 /* ════════════════════════════════════════════════════
-   THEME TOGGLE (#6)
+   THEME TOGGLE — defined in inline script above,
+   exposed to module scope via window.* assignments below.
+   applyTheme() is also called from init() below.
 ════════════════════════════════════════════════════ */
-function toggleTheme() {
-  var isLight = document.body.classList.toggle('light-mode');
-  try { localStorage.setItem('hh_theme', isLight ? 'light' : 'dark'); } catch(e){}
-  var btn = document.getElementById('theme-toggle');
-  if (btn) btn.textContent = isLight ? '☀️' : '🌙';
-}
 function applyTheme() {
   try {
     var saved = localStorage.getItem('hh_theme');
@@ -2253,41 +2246,6 @@ function applyTheme() {
       if (btn) btn.textContent = '☀️';
     }
   } catch(e){}
-}
-
-/* ════════════════════════════════════════════════════
-   LOGOUT (#10)
-════════════════════════════════════════════════════ */
-function logOut() {
-  if (!confirm('Log out? You will need to enter the password again on this device.')) return;
-  try { localStorage.removeItem('hh_auth_v2'); } catch(e){}
-  location.reload();
-}
-
-/* ════════════════════════════════════════════════════
-   MOBILE SIDEBAR (#8 helper)
-════════════════════════════════════════════════════ */
-function toggleMobSidebar() {
-  var sidebar = document.querySelector('.sidebar');
-  var overlay = document.getElementById('mob-overlay');
-  var btn = document.getElementById('mob-menu-btn');
-  if (!sidebar) return;
-  var opening = !sidebar.classList.contains('mob-open');
-  sidebar.classList.toggle('mob-open', opening);
-  document.body.classList.toggle('sidebar-open', opening);
-  document.body.style.overflow = opening ? 'hidden' : '';
-  if (overlay) overlay.classList.toggle('active', opening);
-  if (btn) btn.textContent = opening ? '✕' : '☰';
-}
-function closeMobSidebar() {
-  var sidebar = document.querySelector('.sidebar');
-  var overlay = document.getElementById('mob-overlay');
-  var btn = document.getElementById('mob-menu-btn');
-  if (sidebar) sidebar.classList.remove('mob-open');
-  document.body.classList.remove('sidebar-open');
-  document.body.style.overflow = '';
-  if (overlay) overlay.classList.remove('active');
-  if (btn) btn.textContent = '☰';
 }
 
 /* ════════════════════════════════════════════════════
